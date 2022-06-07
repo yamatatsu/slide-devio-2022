@@ -1,0 +1,56 @@
+import { Notes, Head, Steps } from "mdx-deck";
+import { CodeSurferLayout, vsDarkPartial } from "code-surfer";
+import { Meta, Profile, AlignLeft, Header, Mermaid } from "./parts";
+import "main.css";
+
+export const theme = vsDarkPartial;
+
+<Head>
+  <Meta
+    title="CDKのTips"
+    description="CDKのTips"
+    publishedAt={"2022-06-06T15:00:51.470Z"}
+    host="https://yamatatsu.github.io/slide-devio-2022"
+  />
+</Head>
+
+
+# CDKのTips
+
+DevelopersIO 2022
+
+@yamatatsu
+
+---
+
+<AlignLeft>
+
+<Header>About Me</Header>
+
+<Profile />
+
+</AlignLeft>
+
+---
+
+### IoT周りのCDKを実装しています
+
+- aws-iot
+- aws-iotevents
+
+---
+
+### 目次
+
+- `npx cdk init app --language=typescript`
+- esbuild
+- ファイル紹介とカスタマイズ
+- `environment-agnostic` のメリデメ
+- TypeScriptでの環境値の管理
+- VPC
+- Fargate, ALB
+- RDS
+- ACM, Route53
+- GitHub Actions
+
+---
