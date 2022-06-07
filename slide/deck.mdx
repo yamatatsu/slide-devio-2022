@@ -43,8 +43,13 @@ DevelopersIO 2022
 ### 目次
 
 - `npx cdk init app --language=typescript`
-- esbuild
 - ファイル紹介とカスタマイズ
+  - shbangの削除 `#!/usr/bin/env node`
+  - binの削除 in package.json
+  - scripts.build, watch, cdkの削除 in package.json
+  - esbuild
+    - `npm i -D esbuild esbuild-register`
+    - `node -r esbuild-register bin/cdk.ts`
 - `environment-agnostic` のメリデメ
 - TypeScriptでの環境値の管理
 - VPC
