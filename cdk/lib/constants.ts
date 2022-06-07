@@ -1,17 +1,11 @@
-import { Environment } from "aws-cdk-lib";
-
 type EnvName = "dev" | "prd";
 export const ENV_NAME = getEnvName();
+export const SERVICE_NAME = "Devio2022";
+export const NAME_PREFIX = SERVICE_NAME + ENV_NAME;
 
-export const env: Record<EnvName, Environment> = {
-  dev: {
-    account: process.env.AWS_ACCOUNT_DEV,
-    region: process.env.AWS_REGION_DEV,
-  },
-  prd: {
-    account: process.env.AWS_ACCOUNT_PRD,
-    region: process.env.AWS_REGION_PRD,
-  },
+export const ACCOUNT_ID: Record<EnvName, string> = {
+  dev: process.env.AWS_ACCOUNT_ID_DEV!,
+  prd: process.env.AWS_ACCOUNT_ID_PRD!,
 };
 
 function getEnvName(): EnvName {

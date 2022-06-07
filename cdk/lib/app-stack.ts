@@ -1,9 +1,9 @@
-import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
+import * as cdk from "aws-cdk-lib";
 import * as assets from "aws-cdk-lib/aws-ecr-assets";
 import * as apprunner from "@aws-cdk/aws-apprunner-alpha";
 
-export class CdkStack extends cdk.Stack {
+export default class CdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
