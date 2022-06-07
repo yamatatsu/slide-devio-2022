@@ -1,5 +1,5 @@
 {
-  "app": "node -r esbuild-register bin/cdk.ts",
+  "app": "node -r esbuild-register -r dotenv/config bin/cdk.ts",
   "watch": {
     "include": ["**"],
     "exclude": [
