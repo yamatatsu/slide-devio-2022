@@ -1,16 +1,34 @@
-import { Stack, StackProps } from 'aws-cdk-lib';
-import { Construct } from 'constructs';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as cdk from "aws-cdk-lib";
+import { Construct } from "constructs";
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from "@aws-cdk/aws-apprunner-alpha";
 
-export class CdkStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
+export class CdkStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // The code that defines your stack goes here
+    const service = new apprunner.Service(this, "Service", {
+      source: apprunner.Source.fromAsset({
+        asset: new assets.DockerImageAsset(this, "ImageAssets", {
+          directory: "../app",
+          platform: assets.Platform.LINUX_AMD64,
+        }),
+        imageConfiguration: {
+          port: 3000,
+          startCommand: "npm start",
+          environment: {},
+        },
+      }),
+      /**
+       * Settings for an App Runner VPC connector to associate with the service.
+       *
+       * @default - no VPC connector, uses the DEFAULT egress type instead
+       */
+      // readonly vpcConnector?: IVpcConnector;
+    });
 
-    // example resource
-    // const queue = new sqs.Queue(this, 'CdkQueue', {
-    //   visibilityTimeout: cdk.Duration.seconds(300)
-    // });
+    new cdk.CfnOutput(this, "URL", {
+      value: service.serviceUrl,
+    });
   }
 }
