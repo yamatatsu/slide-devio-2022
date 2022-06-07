@@ -18,7 +18,10 @@ export default class RoleStack extends cdk.Stack {
       // 以下の３つはAWSアカウント、GitHubリポジトリに依らず固定値
       url: `https://${ISSUER}`,
       clientIds: ["sts.amazonaws.com"],
-      thumbprints: ["6938fd4d98bab03faadb97b34396831e3780aea1"],
+      thumbprints: [
+        "a031c46782e6e6c662c2c87c76da9aa62ccabd8e",
+        "6938fd4d98bab03faadb97b34396831e3780aea1",
+      ],
     });
 
     /**
@@ -27,11 +30,9 @@ export default class RoleStack extends cdk.Stack {
      */
     new iam.Role(this, "DeployRole", {
       roleName: `${NAME_PREFIX}-deploy-role`,
-      assumedBy: new iam.FederatedPrincipal(
-        oidcProvider.openIdConnectProviderArn,
-        { StringLike: { [`${ISSUER}:sub`]: `repo:${REPO_NAME}:*` } },
-        "sts:AssumeRoleWithWebIdentity"
-      ),
+      assumedBy: new iam.OpenIdConnectPrincipal(oidcProvider, {
+        StringLike: { [`${ISSUER}:sub`]: `repo:${REPO_NAME}:*` },
+      }),
       managedPolicies: [
         // iam.ManagedPolicy.fromAwsManagedPolicyName(
         //   "AWSCloudFormationFullAccess"
