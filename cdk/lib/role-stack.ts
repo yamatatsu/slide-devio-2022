@@ -33,17 +33,32 @@ export default class RoleStack extends cdk.Stack {
       assumedBy: new iam.OpenIdConnectPrincipal(oidcProvider, {
         StringLike: { [`${ISSUER}:sub`]: `repo:${REPO_NAME}:*` },
       }),
-      managedPolicies: [
-        // iam.ManagedPolicy.fromAwsManagedPolicyName(
-        //   "AWSCloudFormationFullAccess"
-        // ),
-        // iam.ManagedPolicy.fromAwsManagedPolicyName("AWSLambda_FullAccess"),
-        // iam.ManagedPolicy.fromAwsManagedPolicyName("IAMFullAccess"),
-        // iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonS3FullAccess"),
-        // iam.ManagedPolicy.fromAwsManagedPolicyName("AWSIoTFullAccess"),
-        // iam.ManagedPolicy.fromAwsManagedPolicyName("CloudWatchFullAccess"),
-        // iam.ManagedPolicy.fromAwsManagedPolicyName("AWSIoTEventsFullAccess"),
-      ],
+      inlinePolicies: {
+        "cdk-roles": new iam.PolicyDocument({
+          statements: [
+            new iam.PolicyStatement({
+              actions: ["sts:AssumeRole"],
+              resources: [
+                // `cdk bootstrap` で生成されるroleたち
+                this.roleArn("cdk-hnb659fds-cfn-exec-role-*"),
+                this.roleArn("cdk-hnb659fds-deploy-role-*"),
+                this.roleArn("cdk-hnb659fds-lookup-role-*"),
+                this.roleArn("cdk-hnb659fds-file-publishing-role-*"),
+                this.roleArn("cdk-hnb659fds-image-publishing-role-*"),
+              ],
+            }),
+          ],
+        }),
+      },
+    });
+  }
+
+  private roleArn(resourceName: string) {
+    return this.formatArn({
+      service: "iam",
+      resource: "role",
+      resourceName,
+      region: "",
     });
   }
 }
