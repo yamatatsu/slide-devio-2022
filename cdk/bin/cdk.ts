@@ -2,10 +2,10 @@ import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
 import AppStack from "../lib/app-stack";
 import RoleStack from "../lib/role-stack";
-import { ACCOUNT_ID, NAME_PREFIX } from "../lib/constants";
+import { accountId, ENV_NAME, NAME_PREFIX } from "../lib/constants";
 
 const env = {
-  account: ACCOUNT_ID,
+  account: accountId[ENV_NAME],
   region: "ap-northeast-1",
 };
 
