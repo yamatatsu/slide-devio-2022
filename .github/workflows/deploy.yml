@@ -33,3 +33,5 @@ jobs:
         run: |
           cd cdk
           npx cdk deploy --all --require-approval=never
+        env:
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
