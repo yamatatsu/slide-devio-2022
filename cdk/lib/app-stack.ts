@@ -8,8 +8,21 @@ export default class CdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    new ec2.Vpc(this, "Vpc", {});
+    const vpc = new ec2.Vpc(this, "Vpc", {
+      maxAzs: 2,
+      natGateways: 0,
+      subnetConfiguration: [
+        { name: "app-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+        { name: "db-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+      ],
+    });
 
+    const vpcConnector = new apprunner.VpcConnector(this, "VpcConnector2", {
+      vpc,
+      vpcSubnets: {
+        subnetGroupName: "app-subnet",
+      },
+    });
     const service = new apprunner.Service(this, "Service", {
       source: apprunner.Source.fromAsset({
         asset: new assets.DockerImageAsset(this, "ImageAssets", {
@@ -22,12 +35,7 @@ export default class CdkStack extends cdk.Stack {
           environment: {},
         },
       }),
-      /**
-       * Settings for an App Runner VPC connector to associate with the service.
-       *
-       * @default - no VPC connector, uses the DEFAULT egress type instead
-       */
-      // readonly vpcConnector?: IVpcConnector;
+      vpcConnector,
     });
 
     new cdk.CfnOutput(this, "URL", {
