@@ -6,5 +6,6 @@ words:
   - esbuild
   - apprunner
   - oidc
+  - fastify
 ignoreWords: []
 import: []
