@@ -10,5 +10,8 @@
   "license": "ISC",
   "devDependencies": {
     "prettier": "^2.6.2"
-  }
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }
