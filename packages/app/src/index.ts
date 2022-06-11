@@ -1,14 +1,16 @@
 import fastify from "fastify";
-import { PrismaClient } from "@prisma/client";
+import { getPrisma } from "./prisma";
 
 const app = fastify({ logger: true });
-const prisma = new PrismaClient();
+// prisma clientの取得よりもfastifyの起動を優先させるために、ここではawaitしない
+const pPrisma = getPrisma();
 
 app.get("/", (req, res) => {
   res.send("OK");
 });
 
 app.get("/profiles", async (req, res) => {
+  const prisma = await pPrisma;
   const profiles = await prisma.profile.findMany();
   res.send({ profiles });
 });
@@ -20,5 +22,6 @@ app
     process.exit(1);
   })
   .finally(async () => {
+    const prisma = await pPrisma;
     await prisma.$disconnect();
   });

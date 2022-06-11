@@ -8,7 +8,8 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
+  // パスワードをsecret managerから取得する必要があるため、ここでの設定値は使わない
+  url      = ""
 }
 
 model Profile {

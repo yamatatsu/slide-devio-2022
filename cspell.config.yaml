@@ -7,5 +7,7 @@ words:
   - apprunner
   - oidc
   - fastify
+  - mydb
+  - datasources
 ignoreWords: []
 import: []

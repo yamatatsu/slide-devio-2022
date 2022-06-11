@@ -5,13 +5,14 @@ services:
     tty: true
     volumes:
       - .:/usr/src/app
+      - ../../node_modules:/usr/src/app/node_modules
     ports:
       - "3000:3000"
     command: npm start
     depends_on:
       - db
   db:
-    image: mariadb:10.7
+    image: mariadb:10.2
     environment:
       MYSQL_ROOT_PASSWORD: password
     ports:
