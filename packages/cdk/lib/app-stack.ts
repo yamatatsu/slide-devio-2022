@@ -69,7 +69,17 @@ export default class CdkStack extends cdk.Stack {
     new lambda.DockerImageFunction(this, "Migration", {
       code: lambda.DockerImageCode.fromImageAsset("../..", {
         cmd: [
-          "npm run createEnv -w packages/app && npx -w packages/app prisma deploy",
+          "npm",
+          "run",
+          "createEnv",
+          "-w",
+          "packages/app",
+          "&&",
+          "npx",
+          "-w",
+          "packages/app",
+          "prisma",
+          "deploy",
         ],
         target: "app",
       }),
@@ -78,6 +88,11 @@ export default class CdkStack extends cdk.Stack {
       },
       vpc,
       vpcSubnets: { subnetGroupName: "app-subnet" },
+    });
+
+    new ec2.BastionHostLinux(this, "Bastion", {
+      vpc,
+      subnetSelection: vpc.selectSubnets({ subnetGroupName: "app-subnet" }),
     });
 
     new cdk.CfnOutput(this, "URL", {
