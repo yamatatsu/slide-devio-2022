@@ -71,6 +71,7 @@ export default class CdkStack extends cdk.Stack {
         cmd: [
           "npm run createEnv -w packages/app && npx -w packages/app prisma deploy",
         ],
+        target: "app",
       }),
       environment: {
         DATABASE_CREDENTIAL_SECRET_NAME: databaseCredentialSecret.secretName,
