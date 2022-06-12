@@ -15,9 +15,8 @@ export default class CdkStack extends cdk.Stack {
       maxAzs: 2,
       natGateways: 0,
       subnetConfiguration: [
-        { name: "app-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+        { name: "app-subnet", subnetType: ec2.SubnetType.PUBLIC },
         { name: "db-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
-        { name: "debug-subnet", subnetType: ec2.SubnetType.PUBLIC },
       ],
     });
 
