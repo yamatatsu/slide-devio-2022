@@ -1,9 +1,8 @@
 import fastify from "fastify";
-import { getPrisma } from "./prisma";
+import { PrismaClient } from "@prisma/client";
 
 const app = fastify({ logger: true });
-// prisma clientの取得よりもfastifyの起動を優先させるために、ここではawaitしない
-const pPrisma = getPrisma();
+const pPrisma = new PrismaClient();
 
 app.get("/", (req, res) => {
   res.send("OK");

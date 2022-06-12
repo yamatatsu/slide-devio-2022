@@ -54,7 +54,8 @@ export default class CdkStack extends cdk.Stack {
         }),
         imageConfiguration: {
           port: 3000,
-          startCommand: "npm start -w packages/app",
+          startCommand:
+            "npm run createEnv -w packages/app && npm start -w packages/app",
           environment: {
             DATABASE_HOST: database.clusterEndpoint.hostname,
             DATABASE_PORT: database.clusterEndpoint.port.toString(),
