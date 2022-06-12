@@ -51,8 +51,7 @@ export default class CdkStack extends cdk.Stack {
         }),
         imageConfiguration: {
           port: 3000,
-          startCommand:
-            "npm run createEnv -w packages/app && npm start -w packages/app",
+          startCommand: "npm run startOnProduction -w packages/app",
           environment: {
             DATABASE_CREDENTIAL_SECRET_NAME:
               databaseCredentialSecret.secretName,
@@ -71,14 +70,10 @@ export default class CdkStack extends cdk.Stack {
         cmd: [
           "npm",
           "run",
-          "createEnv",
           "-w",
           "packages/app",
-          "&&",
-          "npx",
-          "-w",
-          "packages/app",
-          "prisma",
+          "prismaOnProduction",
+          "--",
           "deploy",
         ],
         target: "app",

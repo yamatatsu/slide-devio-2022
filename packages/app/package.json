@@ -5,8 +5,8 @@
   "scripts": {
     "start": "node -r esbuild-register src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "createEnv": "node ./scripts/create-env.mjs",
-    "prismaOnProduction": "DATABASE_URL=mysql://root:password@db:3306/mydb prisma"
+    "startOnProduction": "node ./scripts/create-env.mjs && npm prisma",
+    "prismaOnProduction": "node ./scripts/create-env.mjs && prisma"
   },
   "author": "",
   "license": "ISC",
