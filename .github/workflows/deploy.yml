@@ -29,7 +29,7 @@ jobs:
         run: npx cdk doctor
       - name: CDK Deploy
         run: |
-          cd cdk
+          cd packages/cdk
           npx cdk deploy --all --require-approval=never
         env:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
