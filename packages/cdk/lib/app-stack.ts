@@ -4,6 +4,7 @@ import * as assets from "aws-cdk-lib/aws-ecr-assets";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as rds from "aws-cdk-lib/aws-rds";
 import * as iam from "aws-cdk-lib/aws-iam";
+import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as apprunner from "@aws-cdk/aws-apprunner-alpha";
 
 export default class CdkStack extends cdk.Stack {
@@ -19,10 +20,6 @@ export default class CdkStack extends cdk.Stack {
       ],
     });
 
-    // const databaseCredentialSecret = new secretsmanager.Secret(
-    //   this,
-    //   "DatabaseCredentialSecret"
-    // );
     const database = new rds.DatabaseCluster(this, "Database", {
       engine: rds.DatabaseClusterEngine.auroraMysql({
         version: rds.AuroraMysqlEngineVersion.VER_2_10_2,
@@ -57,21 +54,29 @@ export default class CdkStack extends cdk.Stack {
           startCommand:
             "npm run createEnv -w packages/app && npm start -w packages/app",
           environment: {
-            DATABASE_HOST: database.clusterEndpoint.hostname,
-            DATABASE_PORT: database.clusterEndpoint.port.toString(),
             DATABASE_CREDENTIAL_SECRET_NAME:
               databaseCredentialSecret.secretName,
-            NODE_ENV: "production",
           },
         },
       }),
       vpcConnector: new apprunner.VpcConnector(this, "VpcConnector2", {
         vpc,
-        vpcSubnets: {
-          subnetGroupName: "app-subnet",
-        },
+        vpcSubnets: { subnetGroupName: "app-subnet" },
       }),
       instanceRole,
+    });
+
+    new lambda.DockerImageFunction(this, "Migration", {
+      code: lambda.DockerImageCode.fromImageAsset("../..", {
+        cmd: [
+          "npm run createEnv -w packages/app && npx -w packages/app prisma deploy",
+        ],
+      }),
+      environment: {
+        DATABASE_CREDENTIAL_SECRET_NAME: databaseCredentialSecret.secretName,
+      },
+      vpc,
+      vpcSubnets: { subnetGroupName: "app-subnet" },
     });
 
     new cdk.CfnOutput(this, "URL", {
