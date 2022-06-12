@@ -19,9 +19,7 @@ jobs:
         with:
           node-version: 16
       - name: Npm Install
-        run: |
-          cd cdk
-          npm ci
+        run: npm ci
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
