@@ -1,14 +1,15 @@
 version: "3"
 services:
   app:
-    build: .
+    build: ../../
     tty: true
     volumes:
-      - .:/usr/src/app
-      - ../../node_modules:/usr/src/app/node_modules
+      - .:/usr/src/main/packages/app
     ports:
       - "3000:3000"
-    command: npm start
+    environment:
+      - DATABASE_URL=mysql://root:password@db:3306/mydb
+    command: npm start -w packages/app
     depends_on:
       - db
   db:
