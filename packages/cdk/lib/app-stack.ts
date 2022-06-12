@@ -48,7 +48,8 @@ export default class CdkStack extends cdk.Stack {
     const service = new apprunner.Service(this, "Service", {
       source: apprunner.Source.fromAsset({
         asset: new assets.DockerImageAsset(this, "ImageAssets", {
-          directory: "../app",
+          directory: "../..",
+          target: "app",
           platform: assets.Platform.LINUX_AMD64,
         }),
         imageConfiguration: {
