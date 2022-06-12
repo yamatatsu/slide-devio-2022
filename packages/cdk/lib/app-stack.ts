@@ -17,6 +17,7 @@ export default class CdkStack extends cdk.Stack {
       subnetConfiguration: [
         { name: "app-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
         { name: "db-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+        { name: "debug-subnet", subnetType: ec2.SubnetType.PUBLIC },
       ],
     });
 
@@ -88,6 +89,10 @@ export default class CdkStack extends cdk.Stack {
     new ec2.BastionHostLinux(this, "Bastion", {
       vpc,
       subnetSelection: vpc.selectSubnets({ subnetGroupName: "app-subnet" }),
+      instanceType: ec2.InstanceType.of(
+        ec2.InstanceClass.T3,
+        ec2.InstanceSize.NANO
+      ),
     });
 
     new cdk.CfnOutput(this, "URL", {
