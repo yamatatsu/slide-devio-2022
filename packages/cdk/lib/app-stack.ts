@@ -13,11 +13,12 @@ export default class CdkStack extends cdk.Stack {
 
     const vpc = new ec2.Vpc(this, "Vpc", {
       maxAzs: 2,
-      natGateways: 0,
-      subnetConfiguration: [
-        { name: "app-subnet", subnetType: ec2.SubnetType.PUBLIC },
-        { name: "db-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
-      ],
+      natGatewayProvider: ec2.NatProvider.instance({
+        instanceType: ec2.InstanceType.of(
+          ec2.InstanceClass.T3,
+          ec2.InstanceSize.NANO
+        ),
+      }),
     });
 
     const database = new rds.DatabaseCluster(this, "Database", {
@@ -29,11 +30,11 @@ export default class CdkStack extends cdk.Stack {
           ec2.InstanceClass.T3,
           ec2.InstanceSize.SMALL
         ),
-        vpcSubnets: { subnetGroupName: "db-subnet" },
         vpc,
       },
       defaultDatabaseName: "mydb",
       credentials: rds.Credentials.fromGeneratedSecret("admin"),
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
     const databaseCredentialSecret = database.secret!;
 
@@ -42,6 +43,9 @@ export default class CdkStack extends cdk.Stack {
     });
     databaseCredentialSecret.grantRead(instanceRole);
 
+    const vpcConnector = new apprunner.VpcConnector(this, "VpcConnector2", {
+      vpc,
+    });
     const service = new apprunner.Service(this, "Service", {
       source: apprunner.Source.fromAsset({
         asset: new assets.DockerImageAsset(this, "ImageAssets", {
@@ -51,43 +55,31 @@ export default class CdkStack extends cdk.Stack {
         }),
         imageConfiguration: {
           port: 3000,
-          startCommand: "npm run startOnProduction -w packages/app",
           environment: {
             DATABASE_CREDENTIAL_SECRET_NAME:
               databaseCredentialSecret.secretName,
           },
         },
       }),
-      vpcConnector: new apprunner.VpcConnector(this, "VpcConnector2", {
-        vpc,
-        vpcSubnets: { subnetGroupName: "app-subnet" },
-      }),
+      vpcConnector,
       instanceRole,
     });
+    database.connections.allowDefaultPortFrom(vpcConnector);
 
-    new lambda.DockerImageFunction(this, "Migration", {
+    const migrator = new lambda.DockerImageFunction(this, "Migration", {
       code: lambda.DockerImageCode.fromImageAsset("../..", {
-        cmd: [
-          "npm",
-          "run",
-          "-w",
-          "packages/app",
-          "prismaOnProduction",
-          "--",
-          "deploy",
-        ],
-        target: "app",
+        target: "migration",
       }),
+      timeout: cdk.Duration.minutes(10),
       environment: {
         DATABASE_CREDENTIAL_SECRET_NAME: databaseCredentialSecret.secretName,
       },
       vpc,
-      vpcSubnets: { subnetGroupName: "app-subnet" },
     });
+    database.connections.allowDefaultPortFrom(migrator);
 
     new ec2.BastionHostLinux(this, "Bastion", {
       vpc,
-      subnetSelection: vpc.selectSubnets({ subnetGroupName: "app-subnet" }),
       instanceType: ec2.InstanceType.of(
         ec2.InstanceClass.T3,
         ec2.InstanceSize.NANO
