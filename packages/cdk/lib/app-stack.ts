@@ -78,13 +78,14 @@ export default class CdkStack extends cdk.Stack {
     });
     database.connections.allowDefaultPortFrom(migrator);
 
-    new ec2.BastionHostLinux(this, "Bastion", {
+    const bastion = new ec2.BastionHostLinux(this, "Bastion", {
       vpc,
       instanceType: ec2.InstanceType.of(
         ec2.InstanceClass.T3,
         ec2.InstanceSize.NANO
       ),
     });
+    database.connections.allowDefaultPortFrom(bastion);
 
     new cdk.CfnOutput(this, "URL", {
       value: service.serviceUrl,
