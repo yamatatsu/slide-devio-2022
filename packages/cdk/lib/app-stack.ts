@@ -84,7 +84,7 @@ export default class CdkStack extends cdk.Stack {
     new cdk.CustomResource(this, "Custom::Migration", {
       serviceToken: provider.serviceToken,
       properties: {
-        // always exec this function on deploying
+        // always exec this function on deployment
         timestamp: Date.now(),
       },
     });
