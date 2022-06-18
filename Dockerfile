@@ -16,7 +16,7 @@ COPY packages/app ./packages/app
 EXPOSE 3000
 CMD npm run -w packages/app startOnProduction
 
-FROM node:16 as migration
+FROM public.ecr.aws/lambda/nodejs:16 as migration
 COPY --from=base /main /main
 WORKDIR /main
 CMD npm run -w packages/app prismaOnProduction -- deploy
