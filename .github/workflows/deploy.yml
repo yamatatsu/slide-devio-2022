@@ -30,6 +30,6 @@ jobs:
       - name: CDK Deploy
         run: |
           cd packages/cdk
-          npx cdk deploy --all --require-approval=never
+          npx cdk deploy --all --require-approval=never --rollback=false
         env:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
