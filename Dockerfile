@@ -14,7 +14,8 @@ COPY --from=base /main /main
 WORKDIR /main
 COPY packages/app ./packages/app
 EXPOSE 3000
-CMD npm run -w packages/app startOnProduction
+ENTRYPOINT [ "./packages/app/entrypoint.sh" ]
+CMD npm start -w packages/app
 
 FROM public.ecr.aws/lambda/nodejs:16 as migration
 COPY --from=base /main /main

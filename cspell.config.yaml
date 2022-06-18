@@ -9,5 +9,6 @@ words:
   - fastify
   - mydb
   - datasources
+  - dbname
 ignoreWords: []
 import: []

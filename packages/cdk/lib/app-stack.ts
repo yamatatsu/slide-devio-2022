@@ -36,17 +36,21 @@ export default class CdkStack extends cdk.Stack {
       credentials: rds.Credentials.fromGeneratedSecret("admin"),
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
-    const databaseCredentialSecret = database.secret!;
 
-    const instanceRole = new iam.Role(this, "Role", {
-      assumedBy: new iam.ServicePrincipal("tasks.apprunner.amazonaws.com"),
-    });
-    databaseCredentialSecret.grantRead(instanceRole);
+    const dbSecret = database.secret!;
+    const dbEnvs = {
+      DB_USERNAME: dbSecret.secretValueFromJson("username").unsafeUnwrap(),
+      DB_PASSWORD: dbSecret.secretValueFromJson("password").unsafeUnwrap(),
+      DB_HOST: dbSecret.secretValueFromJson("host").unsafeUnwrap(),
+      DB_PORT: dbSecret.secretValueFromJson("port").unsafeUnwrap(),
+      DB_NAME: dbSecret.secretValueFromJson("dbname").unsafeUnwrap(),
+    };
 
     const vpcConnector = new apprunner.VpcConnector(this, "VpcConnector2", {
       vpc,
     });
-    const service = new apprunner.Service(this, "Service", {
+    database.connections.allowDefaultPortFrom(vpcConnector);
+    new apprunner.Service(this, "Service", {
       source: apprunner.Source.fromAsset({
         asset: new assets.DockerImageAsset(this, "ImageAssets", {
           directory: "../..",
@@ -55,40 +59,27 @@ export default class CdkStack extends cdk.Stack {
         }),
         imageConfiguration: {
           port: 3000,
-          environment: {
-            DATABASE_CREDENTIAL_SECRET_NAME:
-              databaseCredentialSecret.secretName,
-          },
+          environment: dbEnvs,
         },
       }),
       vpcConnector,
-      instanceRole,
     });
-    database.connections.allowDefaultPortFrom(vpcConnector);
 
-    const migrator = new lambda.DockerImageFunction(this, "Migration", {
+    new lambda.DockerImageFunction(this, "Migration", {
       code: lambda.DockerImageCode.fromImageAsset("../..", {
         target: "migration",
       }),
       timeout: cdk.Duration.minutes(10),
-      environment: {
-        DATABASE_CREDENTIAL_SECRET_NAME: databaseCredentialSecret.secretName,
-      },
+      environment: dbEnvs,
       vpc,
     });
-    database.connections.allowDefaultPortFrom(migrator);
 
-    const bastion = new ec2.BastionHostLinux(this, "Bastion", {
+    new ec2.BastionHostLinux(this, "Bastion", {
       vpc,
       instanceType: ec2.InstanceType.of(
         ec2.InstanceClass.T3,
         ec2.InstanceSize.NANO
       ),
-    });
-    database.connections.allowDefaultPortFrom(bastion);
-
-    new cdk.CfnOutput(this, "URL", {
-      value: service.serviceUrl,
     });
   }
 }
