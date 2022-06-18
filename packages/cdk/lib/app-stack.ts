@@ -5,6 +5,7 @@ import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as rds from "aws-cdk-lib/aws-rds";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as customresources from "aws-cdk-lib/custom-resources";
 import * as apprunner from "@aws-cdk/aws-apprunner-alpha";
 
 export default class CdkStack extends cdk.Stack {
@@ -76,6 +77,17 @@ export default class CdkStack extends cdk.Stack {
       vpcSubnets: { subnetGroupName: "app-subnet" },
     });
     database.connections.allowDefaultPortFrom(migrator);
+
+    const provider = new customresources.Provider(this, "Provider", {
+      onEventHandler: migrator,
+    });
+    new cdk.CustomResource(this, "Custom::Migration", {
+      serviceToken: provider.serviceToken,
+      properties: {
+        // always exec this function on deploying
+        timestamp: Date.now(),
+      },
+    });
 
     const bastion = new ec2.BastionHostLinux(this, "Bastion", {
       vpc,
