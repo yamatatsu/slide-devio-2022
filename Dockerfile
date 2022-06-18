@@ -28,4 +28,5 @@ FROM public.ecr.aws/lambda/nodejs:16 as migration
 COPY --from=base /main/node_modules ${LAMBDA_TASK_ROOT}/
 COPY packages/app/prisma ${LAMBDA_TASK_ROOT}/
 COPY packages/app/migration.mjs ${LAMBDA_TASK_ROOT}/
+RUN npm i -g prisma
 CMD [ "migration.handler" ]

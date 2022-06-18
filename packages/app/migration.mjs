@@ -13,7 +13,7 @@ export const handler = async (event) => {
   // }
   const { DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME } = process.env;
 
-  const stdout = execSync("npx prisma migrate deploy", {
+  const stdout = execSync("prisma migrate deploy", {
     env: {
       ...process.env,
       DATABASE_URL: `mysql://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}`,
