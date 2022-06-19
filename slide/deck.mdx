@@ -14,7 +14,6 @@ export const theme = vsDarkPartial;
   />
 </Head>
 
-
 # CDKのTips
 
 DevelopersIO 2022
@@ -22,7 +21,6 @@ DevelopersIO 2022
 @yamatatsu
 
 ---
-
 <AlignLeft>
 
 <Header>About Me</Header>
@@ -32,30 +30,552 @@ DevelopersIO 2022
 </AlignLeft>
 
 ---
-
-### IoT周りのCDKを実装しています
-
-- aws-iot
-- aws-iotevents
+この登壇の狙い
 
 ---
+<Header>この登壇の狙い</Header>
 
+最初
+
+- めっちゃDeepなCDKの話ししてドヤりたい
+- CDKにコントリビューションした話ししてドヤりたい
+- 承認欲求を満たしたい
+- ドヤりたい
+
+---
+<Header>この登壇の狙い</Header>
+
+![](./parts/assets/using-cdk.png)
+
+---
+<Header>この登壇の狙い</Header>
+
+ましてやCDKユーザー向け  
+でもないイベントでオラついても  
+誰も求めてないかも🤔
+
+---
+<Header>この登壇の狙い</Header>
+
+- もうちょいCDKビギナー向けの話にしよう
+- 擬似的にCDKを体験できるセッションにしよう
+
+---
+# ここで改めてタイトル
+
+---
 ### 目次
 
-- `npx cdk init app --language=typescript`
-- ファイル紹介とカスタマイズ
-  - shbangの削除 `#!/usr/bin/env node`
-  - binの削除 in package.json
-  - scripts.build, watch, cdkの削除 in package.json
-  - esbuild
-    - `npm i -D esbuild esbuild-register`
-    - `node -r esbuild-register bin/cdk.ts`
+- cdk init してみる
+- App Runner してみる
+- VPC してみる
+- RDS してみる
+- DB migraion してみる
+- route53 と ACM してみる
+
+<!-- 
 - `environment-agnostic` のメリデメ
 - TypeScriptでの環境値の管理
 - VPC
 - Fargate, ALB
 - RDS
 - ACM, Route53
-- GitHub Actions
+- GitHub Actions -->
 
 ---
+前提
+- node: v16
+- npm: v8
+
+---
+<CodeSurferLayout>
+
+```bash subtitle="まずはディレクトリを掘って、initを唱えます"
+# terminal
+
+mkdir playground-cdk
+cd playground-cdk
+
+npx cdk init app --language=typescript
+```
+
+```text subtitle="生成されたものを確認してみましょう（簡単のため内容を抜粋しています）"
+├── bin # cdk.jsonの"app"で参照されている。
+│   └── playground-cdk.ts
+├── lib # bin/にあるファイルから参照されている。
+│   └── playground-cdk-stack.ts
+├── cdk.json # "app" の内容が `npx cdk` で実行される。
+└── package.json
+```
+
+```text 5 subtitle="まずはcdk.jsonから見ていきます"
+├── bin # cdk.jsonの"app"で参照されている。
+│   └── playground-cdk.ts
+├── lib # bin/にあるファイルから参照されている。
+│   └── playground-cdk-stack.ts
+├── cdk.json # "app" の内容が `npx cdk` で実行される。
+└── package.json
+```
+
+```json subtitle="jsonの\"app\"はこのようになっていると思います"
+{
+  "app": "npx ts-node --prefer-ts-exts bin/playground-cdk.ts",
+  // 省略
+}
+```
+
+```json 2[15:21,40:60] subtitle="ts-nodeを使ってbin/にあるファイルを実行していることがわかります"
+{
+  "app": "npx ts-node --prefer-ts-exts bin/playground-cdk.ts",
+  // 省略
+}
+```
+
+```text subtitle="またdirツリーに戻りまして"
+├── bin # cdk.jsonの"app"で参照されている。
+│   └── playground-cdk.ts
+├── lib # bin/にあるファイルから参照されている。
+│   └── playground-cdk-stack.ts
+├── cdk.json # "app" の内容が `npx cdk` で実行される。
+└── package.json
+```
+
+```text 1:2 subtitle="今度はbinの中身を確認していきます"
+├── bin # cdk.jsonの"app"で参照されている。
+│   └── playground-cdk.ts
+├── lib # bin/にあるファイルから参照されている。
+│   └── playground-cdk-stack.ts
+├── cdk.json # "app" の内容が `npx cdk` で実行される。
+└── package.json
+```
+
+```ts subtitle="bin/playground-cdk.tsの中身はこのようになっています"
+#!/usr/bin/env node
+import 'source-map-support/register';
+import * as cdk from 'aws-cdk-lib';
+import { PlaygroundAwsCdkStack } from '../lib/playground-cdk-stack';
+
+const app = new cdk.App();
+new PlaygroundAwsCdkStack(app, 'PlaygroundAwsCdkStack', {
+  // 省略
+});
+```
+
+```ts 1 subtitle="ts-nodeで実行するのにshebangが着いています"
+#!/usr/bin/env node
+import 'source-map-support/register';
+import * as cdk from 'aws-cdk-lib';
+import { PlaygroundAwsCdkStack } from '../lib/playground-cdk-stack';
+
+const app = new cdk.App();
+new PlaygroundAwsCdkStack(app, 'PlaygroundAwsCdkStack', {
+  // 省略
+});
+```
+
+```ts subtitle="いらないしmisleadなので消します"
+import 'source-map-support/register';
+import * as cdk from 'aws-cdk-lib';
+import { PlaygroundAwsCdkStack } from '../lib/playground-cdk-stack';
+
+const app = new cdk.App();
+new PlaygroundAwsCdkStack(app, 'PlaygroundAwsCdkStack', {
+  // 省略
+});
+```
+
+```ts 1 subtitle="次に、ts-nodeで実行するのにsource-map-supportが使われています"
+import 'source-map-support/register';
+import * as cdk from 'aws-cdk-lib';
+import { PlaygroundAwsCdkStack } from '../lib/playground-cdk-stack';
+
+const app = new cdk.App();
+new PlaygroundAwsCdkStack(app, 'PlaygroundAwsCdkStack', {
+  // 省略
+});
+```
+
+```ts subtitle="いらないので消します"
+import * as cdk from 'aws-cdk-lib';
+import { PlaygroundAwsCdkStack } from '../lib/playground-cdk-stack';
+
+const app = new cdk.App();
+new PlaygroundAwsCdkStack(app, 'PlaygroundAwsCdkStack', {
+  // 省略
+});
+```
+
+```ts 1:7 subtitle="少しスッキリしました"
+import * as cdk from 'aws-cdk-lib';
+import { PlaygroundAwsCdkStack } from '../lib/playground-cdk-stack';
+
+const app = new cdk.App();
+new PlaygroundAwsCdkStack(app, 'PlaygroundAwsCdkStack', {
+  // 省略
+});
+```
+
+```ts 2,5 subtitle="このbinファイルのしごとはstackを定義していくことです"
+import * as cdk from 'aws-cdk-lib';
+import { PlaygroundAwsCdkStack } from '../lib/playground-cdk-stack';
+
+const app = new cdk.App();
+new PlaygroundAwsCdkStack(app, 'PlaygroundAwsCdkStack', {
+  // 省略
+});
+```
+
+```text subtitle="またもdirツリーに戻りまして"
+├── bin # cdk.jsonの"app"で参照されている。
+│   └── playground-cdk.ts
+├── lib # bin/にあるファイルから参照されている。
+│   └── playground-cdk-stack.ts
+├── cdk.json # "app" の内容が `npx cdk` で実行される。
+└── package.json
+```
+
+```text 3:4 subtitle="今度はbinで参照されていたlibの中身を確認していきます"
+├── bin # cdk.jsonの"app"で参照されている。
+│   └── playground-cdk.ts
+├── lib # bin/にあるファイルから参照されている。
+│   └── playground-cdk-stack.ts
+├── cdk.json # "app" の内容が `npx cdk` で実行される。
+└── package.json
+```
+
+```ts subtitle="lib/playground-cdk-stack.tsの中身はこのようになっています"
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+// import * as sqs from 'aws-cdk-lib/aws-sqs';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    // 省略
+  }
+}
+```
+
+```ts subtitle="いろいろ解説"
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as sqs from 'aws-cdk-lib/aws-sqs';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    // 省略
+  }
+}
+```
+
+```ts subtitle="いろいろ解説"
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as sqs from 'aws-cdk-lib/aws-sqs';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    new sqs.Queue(this, 'MyQueue', {
+      fifo: true
+    })
+  }
+}
+```
+
+```text subtitle="またまたdirツリーに戻りまして"
+├── bin # cdk.jsonの"app"で参照されている。
+│   └── playground-cdk.ts
+├── lib # bin/にあるファイルから参照されている。
+│   └── playground-cdk-stack.ts
+├── cdk.json # "app" の内容が `npx cdk` で実行される。
+└── package.json
+```
+
+```text 6 subtitle="最後にpackage.jsonの中身を確認していきます"
+├── bin # cdk.jsonの"app"で参照されている。
+│   └── playground-cdk.ts
+├── lib # bin/にあるファイルから参照されている。
+│   └── playground-cdk-stack.ts
+├── cdk.json # "app" の内容が `npx cdk` で実行される。
+└── package.json
+```
+
+</CodeSurferLayout>
+
+---
+<CodeSurferLayout>
+
+```json subtitle="こちらがpackage.jsonの中身です"
+{
+  "name": "playground-cdk",
+  "version": "0.1.0",
+  "bin": {
+    "playground-cdk": "bin/playground-cdk.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.5.0",
+    "@types/node": "10.17.27",
+    "@types/prettier": "2.6.0",
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.4",
+    "aws-cdk": "2.27.0",
+    "ts-node": "^10.7.0",
+    "typescript": "~3.9.7"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.27.0",
+    "constructs": "^10.0.0",
+    "source-map-support": "^0.5.21"
+  }
+}
+```
+
+```json 4:6 subtitle="binの定義があります"
+{
+  "name": "playground-cdk",
+  "version": "0.1.0",
+  "bin": {
+    "playground-cdk": "bin/playground-cdk.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.5.0",
+    "@types/node": "10.17.27",
+    "@types/prettier": "2.6.0",
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.4",
+    "aws-cdk": "2.27.0",
+    "ts-node": "^10.7.0",
+    "typescript": "~3.9.7"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.27.0",
+    "constructs": "^10.0.0",
+    "source-map-support": "^0.5.21"
+  }
+}
+```
+
+```json subtitle="いらないので消します"
+{
+  "name": "playground-cdk",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.5.0",
+    "@types/node": "10.17.27",
+    "@types/prettier": "2.6.0",
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.4",
+    "aws-cdk": "2.27.0",
+    "ts-node": "^10.7.0",
+    "typescript": "~3.9.7"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.27.0",
+    "constructs": "^10.0.0",
+    "source-map-support": "^0.5.21"
+  }
+}
+```
+
+```json 5:6 subtitle="tscを使うscriptが定義されています"
+{
+  "name": "playground-cdk",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.5.0",
+    "@types/node": "10.17.27",
+    "@types/prettier": "2.6.0",
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.4",
+    "aws-cdk": "2.27.0",
+    "ts-node": "^10.7.0",
+    "typescript": "~3.9.7"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.27.0",
+    "constructs": "^10.0.0",
+    "source-map-support": "^0.5.21"
+  }
+}
+```
+
+```json subtitle="いらないので消します"
+{
+  "name": "playground-cdk",
+  "version": "0.1.0",
+  "scripts": {
+    "test": "jest",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.5.0",
+    "@types/node": "10.17.27",
+    "@types/prettier": "2.6.0",
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.4",
+    "aws-cdk": "2.27.0",
+    "ts-node": "^10.7.0",
+    "typescript": "~3.9.7"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.27.0",
+    "constructs": "^10.0.0",
+    "source-map-support": "^0.5.21"
+  }
+}
+```
+
+```json 6 subtitle="cdkスクリプトが定義されています"
+{
+  "name": "playground-cdk",
+  "version": "0.1.0",
+  "scripts": {
+    "test": "jest",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.5.0",
+    "@types/node": "10.17.27",
+    "@types/prettier": "2.6.0",
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.4",
+    "aws-cdk": "2.27.0",
+    "ts-node": "^10.7.0",
+    "typescript": "~3.9.7"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.27.0",
+    "constructs": "^10.0.0",
+    "source-map-support": "^0.5.21"
+  }
+}
+```
+
+```json subtitle="npm run cdk -- deploy よりも npx cdk deploy を使うので消します"
+{
+  "name": "playground-cdk",
+  "version": "0.1.0",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.5.0",
+    "@types/node": "10.17.27",
+    "@types/prettier": "2.6.0",
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.4",
+    "aws-cdk": "2.27.0",
+    "ts-node": "^10.7.0",
+    "typescript": "~3.9.7"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.27.0",
+    "constructs": "^10.0.0",
+    "source-map-support": "^0.5.21"
+  }
+}
+```
+
+```json 20 subtitle="先程使わなくなったsource-map-supportも"
+{
+  "name": "playground-cdk",
+  "version": "0.1.0",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.5.0",
+    "@types/node": "10.17.27",
+    "@types/prettier": "2.6.0",
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.4",
+    "aws-cdk": "2.27.0",
+    "ts-node": "^10.7.0",
+    "typescript": "~3.9.7"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.27.0",
+    "constructs": "^10.0.0",
+    "source-map-support": "^0.5.21"
+  }
+}
+```
+
+```json 20 subtitle="消します"
+{
+  "name": "playground-cdk",
+  "version": "0.1.0",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.5.0",
+    "@types/node": "10.17.27",
+    "@types/prettier": "2.6.0",
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.4",
+    "aws-cdk": "2.27.0",
+    "ts-node": "^10.7.0",
+    "typescript": "~3.9.7"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.27.0",
+    "constructs": "^10.0.0"
+  }
+}
+```
+
+```json 1:21 subtitle="スッキリしました"
+{
+  "name": "playground-cdk",
+  "version": "0.1.0",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.5.0",
+    "@types/node": "10.17.27",
+    "@types/prettier": "2.6.0",
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.4",
+    "aws-cdk": "2.27.0",
+    "ts-node": "^10.7.0",
+    "typescript": "~3.9.7"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.27.0",
+    "constructs": "^10.0.0"
+  }
+}
+```
+
+</CodeSurferLayout>

@@ -27,6 +27,9 @@ const styles = {
     display: "flex",
     alignItems: "center",
   },
+  subList: {
+    listStyleType: "disc",
+  },
 };
 
 export const Profile = () => (
@@ -42,6 +45,18 @@ export const Profile = () => (
         </li>
         <li style={styles.listItemSub}>
           <a href="https://github.com/yamatatsu">GitHub: @yamatatsu</a>
+        </li>
+        <li style={styles.listItemSub}>
+          コミュニティ活動:
+          <ul style={styles.subList}>
+            <li>JAWS-UG CDK支部</li>
+          </ul>
+        </li>
+        <li style={styles.listItemSub}>
+          OSSコントリビューション:
+          <ul style={styles.subList}>
+            <li>aws-cdk</li>
+          </ul>
         </li>
       </ul>
     </div>
