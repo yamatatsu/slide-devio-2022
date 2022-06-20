@@ -1,6 +1,6 @@
 import { Notes, Head, Steps } from "mdx-deck";
 import { CodeSurferLayout, vsDarkPartial } from "code-surfer";
-import { Meta, Profile, AlignLeft, Header, Mermaid } from "./parts";
+import { Meta, Profile, AlignLeft, Header, TitleBackground, NormalBackground } from "./parts";
 import "main.css";
 
 export const theme = vsDarkPartial;
@@ -14,13 +14,24 @@ export const theme = vsDarkPartial;
   />
 </Head>
 
-# CDKのTips
+<TitleBackground>
+
+<p></p>
+<p></p>
+<p></p>
+
+# AWS CDK で AWS App Runner
 
 DevelopersIO 2022
 
 @yamatatsu
 
+</TitleBackground>
+
 ---
+
+<NormalBackground>
+
 <AlignLeft>
 
 <Header>About Me</Header>
@@ -29,69 +40,73 @@ DevelopersIO 2022
 
 </AlignLeft>
 
+</NormalBackground>
+
 ---
+<NormalBackground>
+
 この登壇の狙い
 
----
-<Header>この登壇の狙い</Header>
-
-最初
-
-- めっちゃDeepなCDKの話ししてドヤりたい
-- CDKにコントリビューションした話ししてドヤりたい
-- 承認欲求を満たしたい
-- ドヤりたい
+</NormalBackground>
 
 ---
+<NormalBackground>
+
 <Header>この登壇の狙い</Header>
 
 ![](./parts/assets/using-cdk.png)
 
----
-<Header>この登壇の狙い</Header>
-
-ましてやCDKユーザー向け  
-でもないイベントでオラついても  
-誰も求めてないかも🤔
+</NormalBackground>
 
 ---
+<NormalBackground>
+
 <Header>この登壇の狙い</Header>
 
-- もうちょいCDKビギナー向けの話にしよう
+### この登壇の狙い
+
+- CDKビギナー向けの話にしよう
 - 擬似的にCDKを体験できるセッションにしよう
 
----
-# ここで改めてタイトル
+</NormalBackground>
 
 ---
+<NormalBackground>
+
 ### 目次
 
 - cdk init してみる
 - App Runner してみる
 - VPC してみる
 - RDS してみる
+- Bastion してみる
 - DB migraion してみる
 - route53 と ACM してみる
+- 小ネタ `environment-agnostic` のメリデメ
 
-<!-- 
-- `environment-agnostic` のメリデメ
-- TypeScriptでの環境値の管理
-- VPC
-- Fargate, ALB
-- RDS
-- ACM, Route53
-- GitHub Actions -->
+</NormalBackground>
 
 ---
+<NormalBackground>
+
 前提
 - node: v16
 - npm: v8
+
+</NormalBackground>
+
+---
+<NormalBackground>
+
+# cdk init してみる
+
+</NormalBackground>
 
 ---
 <CodeSurferLayout>
 
 ```bash subtitle="まずはディレクトリを掘って、initを唱えます"
-# terminal
+# terminal にて
 
 mkdir playground-cdk
 cd playground-cdk
@@ -574,6 +589,228 @@ export class PlaygroundCdkStack extends Stack {
   "dependencies": {
     "aws-cdk-lib": "2.27.0",
     "constructs": "^10.0.0"
+  }
+}
+```
+
+</CodeSurferLayout>
+
+---
+<NormalBackground>
+
+以上、僕が init したときにいつもやる作業でした
+
+- issueを立ててます
+- 気が向いたら ts-node を  
+  esbuild-register に置き換えたりもします
+
+</NormalBackground>
+
+---
+<NormalBackground>
+
+### 目次
+
+- ~~cdk init してみる~~
+- App Runner してみる
+- VPC してみる
+- RDS してみる
+- Bastion してみる
+- DB migraion してみる
+- route53 と ACM してみる
+- 小ネタ `environment-agnostic` のメリデメ
+
+</NormalBackground>
+
+---
+<NormalBackground>
+
+# App Runner してみる
+
+</NormalBackground>
+
+---
+<CodeSurferLayout>
+
+```bash subtitle="aws-apprunner-alpha をインストールします"
+# terminal にて
+
+npm i -S @aws-cdk/aws-apprunner-alpha
+```
+
+```ts subtitle="こんな感じになってる lib/playground-cdk-stack.ts を"
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+// import * as sqs from 'aws-cdk-lib/aws-sqs';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    // 省略
+  }
+}
+```
+
+```ts subtitle="こうして"
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    // 省略
+  }
+}
+```
+
+```ts subtitle="こうして"
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const asset = new assets.DockerImageAsset(this, "ImageAssets", {
+      directory: "./app",
+      platform: assets.Platform.LINUX_AMD64,
+    });
+  }
+}
+```
+
+```ts subtitle="こうじゃ"
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const asset = new assets.DockerImageAsset(this, "ImageAssets", {
+      directory: "./app",
+      platform: assets.Platform.LINUX_AMD64,
+    });
+
+    new apprunner.Service(this, "Service", {
+      source: apprunner.Source.fromAsset({
+        asset: asset,
+        imageConfiguration: {
+          port: 3000,
+        },
+      }),
+    });
+  }
+}
+```
+
+```ts subtitle="cpuやmemoryを指定することもできます"
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const asset = new assets.DockerImageAsset(this, "ImageAssets", {
+      directory: "./app",
+      platform: assets.Platform.LINUX_AMD64,
+    });
+
+    new apprunner.Service(this, "Service", {
+      source: apprunner.Source.fromAsset({
+        asset: asset,
+        imageConfiguration: {
+          port: 3000,
+        },
+      }),
+      cpu: apprunner.Cpu.TWO_VCPU,
+      memory: apprunner.Memory.FOUR_GB,
+    });
+  }
+}
+```
+
+```bash subtitle="デプロイしてみましょう"
+# terminal にて
+
+npx cdk deploy
+```
+
+```bash subtitle="起動したら疎通を確認してみます。"
+# terminal にて
+
+curl https://xxxxxxxxxx.ap-northeast-1.awsapprunner.com
+# OK
+```
+
+</CodeSurferLayout>
+
+---
+<NormalBackground>
+
+<Header>App Runner してみる</Header>
+
+### まとめ
+
+- App Runner 便利！
+
+</NormalBackground>
+
+---
+<NormalBackground>
+
+# VPC してみる
+
+</NormalBackground>
+
+---
+<NormalBackground>
+
+<Header>VPC してみる</Header>
+
+![](./parts/assets/press-of-vpc-connector.png)
+
+</NormalBackground>
+
+---
+<CodeSurferLayout>
+
+```ts subtitle="先程のファイルです"
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const asset = new assets.DockerImageAsset(this, "ImageAssets", {
+      directory: "./app",
+      platform: assets.Platform.LINUX_AMD64,
+    });
+
+    new apprunner.Service(this, "Service", {
+      source: apprunner.Source.fromAsset({
+        asset: asset,
+        imageConfiguration: {
+          port: 3000,
+        },
+      }),
+      cpu: apprunner.Cpu.TWO_VCPU,
+      memory: apprunner.Memory.FOUR_GB,
+    });
   }
 }
 ```

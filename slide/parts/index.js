@@ -7,3 +7,5 @@ export { default as Mermaid } from "./Mermaid";
 export { StepsDemo } from "./StepsDemo";
 export { AlignLeft } from "./AlignLeft";
 export { Header } from "./Header";
+export { TitleBackground } from "./TitleBackground";
+export { NormalBackground } from "./NormalBackground";
