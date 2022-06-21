@@ -7,8 +7,8 @@ export const theme = vsDarkPartial;
 
 <Head>
   <Meta
-    title="CDKのTips"
-    description="CDKのTips"
+    title="AWS CDK で AWS App Runner"
+    description="AWS CDK で AWS App Runner"
     publishedAt={"2022-06-06T15:00:51.470Z"}
     host="https://yamatatsu.github.io/slide-devio-2022"
   />
@@ -29,7 +29,6 @@ DevelopersIO 2022
 </TitleBackground>
 
 ---
-
 <NormalBackground>
 
 <AlignLeft>
@@ -80,9 +79,8 @@ DevelopersIO 2022
 - VPC してみる
 - RDS してみる
 - Bastion してみる
-- DB migraion してみる
 - route53 と ACM してみる
-- 小ネタ `environment-agnostic` のメリデメ
+- Tips: DB migraion を自動化する
 
 </NormalBackground>
 
@@ -808,11 +806,512 @@ export class PlaygroundCdkStack extends Stack {
           port: 3000,
         },
       }),
-      cpu: apprunner.Cpu.TWO_VCPU,
-      memory: apprunner.Memory.FOUR_GB,
+    });
+  }
+}
+```
+
+```ts subtitle="VPCを追加してみます"
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const vpc = new ec2.Vpc(this, "Vpc", {
+    });
+
+    const asset = new assets.DockerImageAsset(this, "ImageAssets", {
+      directory: "./app",
+      platform: assets.Platform.LINUX_AMD64,
+    });
+
+    new apprunner.Service(this, "Service", {
+      source: apprunner.Source.fromAsset({
+        asset: asset,
+        imageConfiguration: {
+          port: 3000,
+        },
+      }),
+    });
+  }
+}
+```
+
+```ts 11:12 subtitle="一旦、これで作成リソースを確認してみましょう"
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const vpc = new ec2.Vpc(this, "Vpc", {
+    });
+
+    const asset = new assets.DockerImageAsset(this, "ImageAssets", {
+      directory: "./app",
+      platform: assets.Platform.LINUX_AMD64,
+    });
+
+    new apprunner.Service(this, "Service", {
+      source: apprunner.Source.fromAsset({
+        asset: asset,
+        imageConfiguration: {
+          port: 3000,
+        },
+      }),
     });
   }
 }
 ```
 
 </CodeSurferLayout>
+
+---
+<NormalBackground>
+
+![](./parts/assets/vpc-agnostic.png)
+
+</NormalBackground>
+
+---
+<NormalBackground>
+
+# 🤔
+
+</NormalBackground>
+
+---
+<CodeSurferLayout>
+
+```ts 11:12
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const vpc = new ec2.Vpc(this, "Vpc", {
+    });
+
+    const asset = new assets.DockerImageAsset(this, "ImageAssets", {
+      directory: "./app",
+      platform: assets.Platform.LINUX_AMD64,
+    });
+
+    new apprunner.Service(this, "Service", {
+      source: apprunner.Source.fromAsset({
+        asset: asset,
+        imageConfiguration: {
+          port: 3000,
+        },
+      }),
+    });
+  }
+}
+```
+
+```ts 11:13 subtitle="maxAzsを足してみましょう"
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const vpc = new ec2.Vpc(this, "Vpc", {
+      maxAzs: 3,
+    });
+
+    const asset = new assets.DockerImageAsset(this, "ImageAssets", {
+      directory: "./app",
+      platform: assets.Platform.LINUX_AMD64,
+    });
+
+    new apprunner.Service(this, "Service", {
+      source: apprunner.Source.fromAsset({
+        asset: asset,
+        imageConfiguration: {
+          port: 3000,
+        },
+      }),
+    });
+  }
+}
+```
+
+</CodeSurferLayout>
+
+---
+<NormalBackground>
+
+![](./parts/assets/vpc-agnostic.png)
+
+</NormalBackground>
+
+---
+<NormalBackground>
+
+# 🤔
+
+</NormalBackground>
+
+---
+<NormalBackground>
+
+![](./parts/assets/jsdoc-vpc-maxAzs.png)
+
+</NormalBackground>
+
+---
+<CodeSurferLayout>
+
+```ts 5:7 subtitle="binファイルにて"
+import * as cdk from 'aws-cdk-lib';
+import { PlaygroundAwsCdkStack } from '../lib/playground-cdk-stack';
+
+const app = new cdk.App();
+new PlaygroundAwsCdkStack(app, 'PlaygroundAwsCdkStack', {
+  // 省略
+});
+```
+
+```ts 5:10 subtitle="envとしてaccountとregionを指定してあげます。"
+import * as cdk from 'aws-cdk-lib';
+import { PlaygroundAwsCdkStack } from '../lib/playground-cdk-stack';
+
+const app = new cdk.App();
+new PlaygroundAwsCdkStack(app, 'PlaygroundAwsCdkStack', {
+  env: {
+    account: "123456789012",
+    region: "ap-northeast-1",
+  },
+});
+```
+
+</CodeSurferLayout>
+
+---
+<NormalBackground>
+
+![](./parts/assets/vpc-env-specified.png)
+
+公式Doc: https://docs.aws.amazon.com/cdk/v2/guide/environments.html
+
+</NormalBackground>
+
+---
+<NormalBackground>
+
+# 🎉
+
+</NormalBackground>
+
+---
+<NormalBackground>
+
+![](./parts/assets/vpc-env-specified.png)
+
+</NormalBackground>
+
+---
+<NormalBackground>
+
+![](./parts/assets/vpc-env-specified-nat.png)
+
+</NormalBackground>
+
+---
+<NormalBackground>
+
+- `new VPC()` はデフォルトでNat Gatewayを作ってくれる
+- 初めてCDK触った人に3AZで3台Nat Gatewayを作ってくれる
+- Nat Gateway 1台 0.062 USD/hour
+  - 0.062 \* 3 \* 24 \* 30 \* 135.99 = 18,212円/月くらい
+
+</NormalBackground>
+
+---
+<CodeSurferLayout>
+
+```ts 11:12
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const vpc = new ec2.Vpc(this, "Vpc", {
+    });
+
+    const asset = new assets.DockerImageAsset(this, "ImageAssets", {
+      directory: "./app",
+      platform: assets.Platform.LINUX_AMD64,
+    });
+
+    new apprunner.Service(this, "Service", {
+      source: apprunner.Source.fromAsset({
+        asset: asset,
+        imageConfiguration: {
+          port: 3000,
+        },
+      }),
+    });
+  }
+}
+```
+
+```ts subtitle="natGatewayProviderにてnat instanceを指定することができます"
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const vpc = new ec2.Vpc(this, "Vpc", {
+      natGatewayProvider: ec2.NatProvider.instance({
+        instanceType: ec2.InstanceType.of(
+          ec2.InstanceClass.T3,
+          ec2.InstanceSize.NANO
+        ),
+      }),
+    });
+
+    const asset = new assets.DockerImageAsset(this, "ImageAssets", {
+      directory: "./app",
+      platform: assets.Platform.LINUX_AMD64,
+    });
+
+    new apprunner.Service(this, "Service", {
+      source: apprunner.Source.fromAsset({
+        asset: asset,
+        imageConfiguration: {
+          port: 3000,
+        },
+      }),
+    });
+  }
+}
+```
+
+```ts subtitle="natGatewaysに0を指定することで、Nat GatewayとInstanceの両方を作成しない設定もできます"
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const vpc = new ec2.Vpc(this, "Vpc", {
+      natGateways: 0,
+    });
+
+    const asset = new assets.DockerImageAsset(this, "ImageAssets", {
+      directory: "./app",
+      platform: assets.Platform.LINUX_AMD64,
+    });
+
+    new apprunner.Service(this, "Service", {
+      source: apprunner.Source.fromAsset({
+        asset: asset,
+        imageConfiguration: {
+          port: 3000,
+        },
+      }),
+    });
+  }
+}
+```
+
+```ts subtitle="VPCはSubnet構成も指定することができます"
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const vpc = new ec2.Vpc(this, "Vpc", {
+      natGateways: 0,
+      subnetConfiguration: [
+        { name: "public-subnet", subnetType: ec2.SubnetType.PUBLIC },
+        { name: "app-subnet", subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
+        { name: "db-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+      ],
+    });
+
+    const asset = new assets.DockerImageAsset(this, "ImageAssets", {
+      directory: "./app",
+      platform: assets.Platform.LINUX_AMD64,
+    });
+
+    new apprunner.Service(this, "Service", {
+      source: apprunner.Source.fromAsset({
+        asset: asset,
+        imageConfiguration: {
+          port: 3000,
+        },
+      }),
+    });
+  }
+}
+```
+
+```ts 13:16 subtitle="今回は外部APIを使う要件は無いことにして、ISOLATEDを2つ用意します"
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const vpc = new ec2.Vpc(this, "Vpc", {
+      natGateways: 0,
+      subnetConfiguration: [
+        { name: "app-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+        { name: "db-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+      ],
+    });
+
+    const asset = new assets.DockerImageAsset(this, "ImageAssets", {
+      directory: "./app",
+      platform: assets.Platform.LINUX_AMD64,
+    });
+
+    new apprunner.Service(this, "Service", {
+      source: apprunner.Source.fromAsset({
+        asset: asset,
+        imageConfiguration: {
+          port: 3000,
+        },
+      }),
+    });
+  }
+}
+```
+
+```ts 11:17 subtitle=""
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const vpc = new ec2.Vpc(this, "Vpc", {
+      natGateways: 0,
+      subnetConfiguration: [
+        { name: "app-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+        { name: "db-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+      ],
+    });
+
+    const asset = new assets.DockerImageAsset(this, "ImageAssets", {
+      directory: "./app",
+      platform: assets.Platform.LINUX_AMD64,
+    });
+
+    new apprunner.Service(this, "Service", {
+      source: apprunner.Source.fromAsset({
+        asset: asset,
+        imageConfiguration: {
+          port: 3000,
+        },
+      }),
+    });
+  }
+}
+```
+
+```ts subtitle="VpcConnectorを使用することでVPCとApp Runnerを繋ぐことができます"
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const vpc = new ec2.Vpc(this, "Vpc", {
+      natGateways: 0,
+      subnetConfiguration: [
+        { name: "app-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+        { name: "db-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+      ],
+    });
+
+    const vpcConnector = new apprunner.VpcConnector(this, "VpcConnector", {
+      vpc,
+      vpcSubnets: { subnetGroupName: "app-subnet" },
+    });
+
+    const asset = new assets.DockerImageAsset(this, "ImageAssets", {
+      directory: "./app",
+      platform: assets.Platform.LINUX_AMD64,
+    });
+
+    new apprunner.Service(this, "Service", {
+      source: apprunner.Source.fromAsset({
+        asset: asset,
+        imageConfiguration: {
+          port: 3000,
+        },
+      }),
+      vpcConnector,
+    });
+  }
+}
+```
+
+</CodeSurferLayout>
+
+
+---
+<NormalBackground>
+
+<Header>VPC してみる</Header>
+
+### まとめ
+
+- stackを定義する際にenvを指定しよう
+- 3種類のSubnetTypeを使い分けよう
+- NatProviderを選ぼう
+
+</NormalBackground>
