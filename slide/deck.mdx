@@ -18,7 +18,6 @@ export const theme = vsDarkPartial;
 
 <p></p>
 <p></p>
-<p></p>
 
 # AWS CDK で AWS App Runner
 
@@ -44,23 +43,30 @@ DevelopersIO 2022
 ---
 <NormalBackground>
 
-この登壇の狙い
+<img src="./parts/assets/cdk-contribution.png" style={{ height: '50vh' }}></img>
+
+https://github.com/aws/aws-cdk/graphs/contributors
 
 </NormalBackground>
 
 ---
 <NormalBackground>
 
-<Header>この登壇の狙い</Header>
+<img src="./parts/assets/jaws-cdk.png" style={{ height: '60vh' }}></img>
 
-![](./parts/assets/using-cdk.png)
+https://twitter.com/jawsug_cdk
 
 </NormalBackground>
 
 ---
 <NormalBackground>
 
-<Header>この登壇の狙い</Header>
+<img src="./parts/assets/using-cdk.png" style={{ width: '80vw' }}></img>
+
+</NormalBackground>
+
+---
+<NormalBackground>
 
 ### この登壇の狙い
 
@@ -72,7 +78,7 @@ DevelopersIO 2022
 ---
 <NormalBackground>
 
-### 目次
+目次
 
 - cdk init してみる
 - App Runner してみる
@@ -1040,7 +1046,7 @@ new PlaygroundAwsCdkStack(app, 'PlaygroundAwsCdkStack', {
 <NormalBackground>
 
 - `new VPC()` はデフォルトでNat Gatewayを作ってくれる
-- 初めてCDK触った人に3AZで3台Nat Gatewayを作ってくれる
+- 3AZで3台のNat Gateway
 - Nat Gateway 1台 0.062 USD/hour
   - 0.062 \* 3 \* 24 \* 30 \* 135.99 = 18,212円/月くらい
 
@@ -1302,7 +1308,6 @@ export class PlaygroundCdkStack extends Stack {
 
 </CodeSurferLayout>
 
-
 ---
 <NormalBackground>
 
@@ -1315,3 +1320,286 @@ export class PlaygroundCdkStack extends Stack {
 - NatProviderを選ぼう
 
 </NormalBackground>
+
+---
+<NormalBackground>
+
+# RDS してみる
+
+</NormalBackground>
+
+---
+<CodeSurferLayout>
+
+```ts subtitle=""
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const vpc = new ec2.Vpc(this, "Vpc", {
+      natGateways: 0,
+      subnetConfiguration: [
+        { name: "app-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+        { name: "db-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+      ],
+    });
+
+    const vpcConnector = new apprunner.VpcConnector(this, "VpcConnector", {
+      vpc,
+      vpcSubnets: { subnetGroupName: "app-subnet" },
+    });
+
+    const asset = new assets.DockerImageAsset(this, "ImageAssets", {
+      directory: "./app",
+      platform: assets.Platform.LINUX_AMD64,
+    });
+
+    new apprunner.Service(this, "Service", {
+      source: apprunner.Source.fromAsset({
+        asset: asset,
+        imageConfiguration: {
+          port: 3000,
+        },
+      }),
+      vpcConnector,
+    });
+  }
+}
+```
+
+```ts subtitle=""
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as rds from "aws-cdk-lib/aws-rds";
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const vpc = new ec2.Vpc(this, "Vpc", {
+      natGateways: 0,
+      subnetConfiguration: [
+        { name: "app-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+        { name: "db-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+      ],
+    });
+
+    const vpcConnector = new apprunner.VpcConnector(this, "VpcConnector", {
+      vpc,
+      vpcSubnets: { subnetGroupName: "app-subnet" },
+    });
+
+    const asset = new assets.DockerImageAsset(this, "ImageAssets", {
+      directory: "./app",
+      platform: assets.Platform.LINUX_AMD64,
+    });
+
+    new apprunner.Service(this, "Service", {
+      source: apprunner.Source.fromAsset({
+        asset: asset,
+        imageConfiguration: {
+          port: 3000,
+        },
+      }),
+      vpcConnector,
+    });
+  }
+}
+```
+
+```ts subtitle=""
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as rds from "aws-cdk-lib/aws-rds";
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const vpc = new ec2.Vpc(this, "Vpc", {
+      natGateways: 0,
+      subnetConfiguration: [
+        { name: "app-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+        { name: "db-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+      ],
+    });
+
+    const database = new rds.DatabaseCluster(this, "Database", {
+      engine: rds.DatabaseClusterEngine.auroraMysql({
+        version: rds.AuroraMysqlEngineVersion.VER_2_10_2,
+      }),
+      instanceProps: {
+        instanceType: ec2.InstanceType.of(
+          ec2.InstanceClass.T3,
+          ec2.InstanceSize.SMALL
+        ),
+        vpc,
+        vpcSubnets: { subnetGroupName: "db-subnet" },
+      },
+      defaultDatabaseName: "mydb",
+      credentials: rds.Credentials.fromGeneratedSecret("admin"),
+    });
+
+    const vpcConnector = new apprunner.VpcConnector(this, "VpcConnector", {
+      vpc,
+      vpcSubnets: { subnetGroupName: "app-subnet" },
+    });
+
+    const asset = new assets.DockerImageAsset(this, "ImageAssets", {
+      directory: "./app",
+      platform: assets.Platform.LINUX_AMD64,
+    });
+
+    new apprunner.Service(this, "Service", {
+      source: apprunner.Source.fromAsset({
+        asset: asset,
+        imageConfiguration: {
+          port: 3000,
+        },
+      }),
+      vpcConnector,
+    });
+  }
+}
+```
+
+```ts subtitle=""
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as rds from "aws-cdk-lib/aws-rds";
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const vpc = new ec2.Vpc(this, "Vpc", {
+      natGateways: 0,
+      subnetConfiguration: [
+        { name: "app-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+        { name: "db-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+      ],
+    });
+
+    const database = new rds.DatabaseCluster(this, "Database", {
+      engine: rds.DatabaseClusterEngine.auroraMysql({
+        version: rds.AuroraMysqlEngineVersion.VER_2_10_2,
+      }),
+      instanceProps: {
+        instanceType: ec2.InstanceType.of(
+          ec2.InstanceClass.T3,
+          ec2.InstanceSize.SMALL
+        ),
+        vpc,
+        vpcSubnets: { subnetGroupName: "db-subnet" },
+      },
+      defaultDatabaseName: "mydb",
+      credentials: rds.Credentials.fromGeneratedSecret("admin"),
+    });
+
+    const vpcConnector = new apprunner.VpcConnector(this, "VpcConnector", {
+      vpc,
+      vpcSubnets: { subnetGroupName: "app-subnet" },
+    });
+    database.connections.allowDefaultPortFrom(vpcConnector);
+
+    const asset = new assets.DockerImageAsset(this, "ImageAssets", {
+      directory: "./app",
+      platform: assets.Platform.LINUX_AMD64,
+    });
+
+    new apprunner.Service(this, "Service", {
+      source: apprunner.Source.fromAsset({
+        asset: asset,
+        imageConfiguration: {
+          port: 3000,
+        },
+      }),
+      vpcConnector,
+    });
+  }
+}
+```
+
+```ts subtitle=""
+import { Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as rds from "aws-cdk-lib/aws-rds";
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as apprunner from '@aws-cdk/aws-apprunner-alpha';
+
+export class PlaygroundCdkStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
+    super(scope, id, props);
+
+    const vpc = new ec2.Vpc(this, "Vpc", {
+      natGateways: 0,
+      subnetConfiguration: [
+        { name: "app-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+        { name: "db-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+      ],
+    });
+
+    const database = new rds.DatabaseCluster(this, "Database", {
+      engine: rds.DatabaseClusterEngine.auroraMysql({
+        version: rds.AuroraMysqlEngineVersion.VER_2_10_2,
+      }),
+      instanceProps: {
+        instanceType: ec2.InstanceType.of(
+          ec2.InstanceClass.T3,
+          ec2.InstanceSize.SMALL
+        ),
+        vpc,
+        vpcSubnets: { subnetGroupName: "db-subnet" },
+      },
+      defaultDatabaseName: "mydb",
+      credentials: rds.Credentials.fromGeneratedSecret("admin"),
+    });
+
+    const vpcConnector = new apprunner.VpcConnector(this, "VpcConnector", {
+      vpc,
+      vpcSubnets: { subnetGroupName: "app-subnet" },
+    });
+    database.connections.allowDefaultPortFrom(vpcConnector);
+
+    const asset = new assets.DockerImageAsset(this, "ImageAssets", {
+      directory: "./app",
+      platform: assets.Platform.LINUX_AMD64,
+    });
+
+    new apprunner.Service(this, "Service", {
+      source: apprunner.Source.fromAsset({
+        asset: asset,
+        imageConfiguration: {
+          port: 3000,
+          environment: {
+            DB_USERNAME: database.secret!.secretValueFromJson("username").unsafeUnwrap(),
+            DB_PASSWORD: database.secret!.secretValueFromJson("password").unsafeUnwrap(),
+            DB_HOST: database.secret!.secretValueFromJson("host").unsafeUnwrap(),
+            DB_PORT: database.secret!.secretValueFromJson("port").unsafeUnwrap(),
+            DB_NAME: database.secret!.secretValueFromJson("dbname").unsafeUnwrap(),
+          },
+        },
+      }),
+      vpcConnector,
+    });
+  }
+}
+```
+
+</CodeSurferLayout>
