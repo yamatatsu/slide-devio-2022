@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="https://yamatatsu.github.io/favicon.ico"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/node_modules/reveal.js/dist/reveal.css" />
+    <link
+      rel="stylesheet"
+      href="/node_modules/reveal.js/dist/theme/white.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/node_modules/reveal.js/plugin/highlight/monokai.css"
+    />
+    <title>AWS CDK で AWS APP RUNNER</title>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown="md/00-init.md"></section>
+        <section data-markdown="md/10-init-cdk.md" data-auto-animate></section>
+        <section
+          data-markdown="md/11-app-runner.md"
+          data-auto-animate
+        ></section>
+        <section data-markdown="md/12-vpc.md" data-auto-animate></section>
+        <section data-markdown="md/13-rds.md" data-auto-animate></section>
+        <section data-markdown="md/14-bastion.md" data-auto-animate></section>
+        <section data-markdown="md/15-route53.md" data-auto-animate></section>
+        <section data-markdown="md/16-tips.md" data-auto-animate></section>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
