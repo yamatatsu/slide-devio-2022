@@ -83,9 +83,9 @@ rdsをインポートし、
 
 DatabaseClusterをnewします。
 
-allowDefaultPortFromを使って、RDSが所属しているsecurity groupにinboundを設定します。
+allowDefaultPortFromを使うと、双方のsecurity groupにingressとegressのruleを追加してくれます。
 
-database.secret を用いてこのように記載することで、データベースのパスワードが保存されたsecrets managerから値を手に入れ、App Runnerに設定することができます。
+database.secret を用いることで、secrets managerからデータベースのパスワードなどをApp Runnerに設定することができます。
 ---
 ### [RDS してみる] まとめ
 

@@ -73,13 +73,10 @@ export class PlaygroundCdkStack extends cdk.Stack {
       vpcConnector,
     });
 
-    // const bastion = new ec2.BastionHostLinux(this, "Bastion", {
-    //   vpc,
-    //   // subnetSelection: vpc.selectSubnets({ subnetGroupName: "app-subnet" }),
-    //   instanceType: ec2.InstanceType.of(
-    //     ec2.InstanceClass.T3,
-    //     ec2.InstanceSize.NANO
-    //   ),
-    // });
+    const bastion = new ec2.BastionHostLinux(this, "Bastion", {
+      vpc,
+      subnetSelection: vpc.selectSubnets({ subnetGroupName: "app-subnet" }),
+    });
+    database.connections.allowDefaultPortFrom(bastion);
   }
 }

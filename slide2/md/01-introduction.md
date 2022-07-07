@@ -1,12 +1,4 @@
-# AWS CDK で AWS App Runner
-
-DevelopersIO 2022
-
-@yamatatsu
----
-## About Me
-
-<dev style="display: flex; justify-content: center; align-items: center;">
+<dev style="display: flex; justify-content: center; align-items: center; margin-top: 40px;">
   <img
     src="./assets/yamatatsu.png"
     height="180"
@@ -36,15 +28,15 @@ DevelopersIO 2022
   </ul>
 </dev>
 ---
-<img src="./assets/cdk-contribution.png" style="height: 50vh"></img>
-
-https://github.com/aws/aws-cdk/graphs/contributors
----
-<img src="./assets/jaws-cdk.png" style="height: 60vh"></img>
+![](./assets/jaws-cdk.png) <!-- .element style="height: 30vh" -->
 
 https://twitter.com/jawsug_cdk
 ---
-<img src="./assets/using-cdk.png" style="width: 80vw"></img>
+![](./assets/cdk-contribution.png) <!-- .element style="height: 30vh" -->
+
+https://github.com/aws/aws-cdk/graphs/contributors
+---
+![](./assets/using-cdk.png) <!-- .element style="width: 80vw" -->
 ---
 ### この登壇の狙い
 

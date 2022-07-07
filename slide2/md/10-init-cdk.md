@@ -8,11 +8,6 @@
 - route53 と ACM してみる
 - Tips: DB migraion を自動化する
 ---
-前提
-
-- node: v16
-- npm: v8
----
 # cdk init してみる
 ---
 ```bash
@@ -26,13 +21,13 @@ npx cdk init app --language=typescript
 
 Note: まずはディレクトリを掘って、initを唱えます
 ---
-```text [|5]
-├── bin # cdk.jsonの"app"で参照されている。
-│   └── playground-cdk.ts
-├── lib # bin/にあるファイルから参照されている。
-│   └── playground-cdk-stack.ts
-├── cdk.json # "app" の内容が `npx cdk` で実行される。
-└── package.json
+```bash [|5]
+├─ bin
+│   └─ playground-cdk.ts
+├─ lib
+│   └─ playground-cdk-stack.ts
+├─ cdk.json
+└─ package.json
 ```
 
 Note:
@@ -52,13 +47,13 @@ jsonの"app"はこのようになっていると思います
 
 ts-nodeを使ってbin/にあるファイルを実行していることがわかります
 ---
-```text [1-2]
-├── bin # cdk.jsonの"app"で参照されている。
-│   └── playground-cdk.ts
-├── lib # bin/にあるファイルから参照されている。
-│   └── playground-cdk-stack.ts
-├── cdk.json # "app" の内容が `npx cdk` で実行される。
-└── package.json
+```bash [1-2]
+├─ bin
+│   └─ playground-cdk.ts
+├─ lib
+│   └─ playground-cdk-stack.ts
+├─ cdk.json
+└─ package.json
 ```
 
 Note:
@@ -66,7 +61,7 @@ Note:
 
 今度はbinの中身を確認していきます
 ---
-```ts [|1|2]
+<pre data-id="code-animation"><code data-line-numbers="" class="hljs" data-trim>
 #!/usr/bin/env node
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
@@ -76,26 +71,51 @@ const app = new cdk.App();
 new PlaygroundAwsCdkStack(app, "PlaygroundAwsCdkStack", {
   // 省略
 });
-```
+</code></pre>
 
 Note:
 bin/playground-cdk.tsの中身はこのようになっています
 
 1行目を見るとts-nodeで実行するのにshebangが着いています  
+---
+<pre data-id="code-animation"><code data-line-numbers="" class="hljs" data-trim>
+import "source-map-support/register";
+import * as cdk from "aws-cdk-lib";
+import { PlaygroundAwsCdkStack } from "../lib/playground-cdk-stack";
+
+const app = new cdk.App();
+new PlaygroundAwsCdkStack(app, "PlaygroundAwsCdkStack", {
+  // 省略
+});
+</code></pre>
+
+Note:
 いらないしmisleadなので消します
 
 次に、ts-nodeで実行するのにsource-map-supportが使われています  
+---
+<pre data-id="code-animation"><code data-line-numbers="" class="hljs" data-trim>
+import * as cdk from "aws-cdk-lib";
+import { PlaygroundAwsCdkStack } from "../lib/playground-cdk-stack";
+
+const app = new cdk.App();
+new PlaygroundAwsCdkStack(app, "PlaygroundAwsCdkStack", {
+  // 省略
+});
+</code></pre>
+
+Note:
 いらないので消します
 
-このbinファイルのしごとはstackを定義していくことです
+このbinファイルのしごとはstackをnewしていくことです
 ---
-```text [|3-4]
-├── bin # cdk.jsonの"app"で参照されている。
-│   └── playground-cdk.ts
-├── lib # bin/にあるファイルから参照されている。
-│   └── playground-cdk-stack.ts
-├── cdk.json # "app" の内容が `npx cdk` で実行される。
-└── package.json
+```bash [|3-4]
+├─ bin
+│   └─ playground-cdk.ts
+├─ lib
+│   └─ playground-cdk-stack.ts
+├─ cdk.json
+└─ package.json
 ```
 
 Note:
@@ -156,13 +176,13 @@ export class PlaygroundCdkStack extends Stack {
 Note:
 このようにクラスをnewすることで、SQSを作成するCDKをここに記述していけます
 ---
-```text [|6]
-├── bin # cdk.jsonの"app"で参照されている。
-│   └── playground-cdk.ts
-├── lib # bin/にあるファイルから参照されている。
-│   └── playground-cdk-stack.ts
-├── cdk.json # "app" の内容が `npx cdk` で実行される。
-└── package.json
+```bash [|6]
+├─ bin
+│   └─ playground-cdk.ts
+├─ lib
+│   └─ playground-cdk-stack.ts
+├─ cdk.json
+└─ package.json
 ```
 
 Note:

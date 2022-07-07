@@ -14,9 +14,22 @@
 ```bash
 # terminal にて
 
-npm i -S @aws-cdk/aws-apprunner-alpha
+> npm i -S @aws-cdk/aws-apprunner-alpha
 ```
-Note: aws-apprunner-alpha をインストールします
+Note:
+aws-apprunner-alpha をインストールします
+
+experimental modulesと呼ばれるalpha版のモジュールはaws-cdk-libにパッケージされていません。
+
+ほかのexperimental modulesの例:
+
+- aws-apigatewayv2
+- aws-appsync
+- aws-kinesisfirehose
+- aws-lambda-go
+- aws-lambda-python
+- aws-iot
+- aws-iotevents
 ---
 <pre data-id="code-animation"><code data-line-numbers="" class="hljs" data-trim>
 import { Stack, StackProps } from "aws-cdk-lib";
@@ -94,20 +107,50 @@ export class PlaygroundCdkStack extends Stack {
 Note:
 cpuやmemoryを指定することもできます
 ---
-```bash
-# terminal にて
+```ts
+import fastify from "fastify";
 
-npx cdk deploy
+const app = fastify({ logger: true });
+
+app.get("/", (req, res) => {
+  res.send("OK");
+});
+
+app.listen({ port: 3000, host: "0.0.0.0" });
 ```
-Note:デプロイしてみましょう
+Note:
+docker containerの中身はportさえ合ってれば何でもいいのです。
+
+サンプルとしては fastify を使ってみました。
+---
+```docker
+FROM node:16
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+
+EXPOSE 3000
+CMD npm start
+```
+Note:
+dockerfileはこんな感じ
 ---
 ```bash
 # terminal にて
 
-curl https://xxxxxxxxxx.ap-northeast-1.awsapprunner.com
+> npx cdk deploy
+
+> curl https://xxxxxxxxxx.ap-northeast-1.awsapprunner.com
 # OK
 ```
-Note: 起動したら疎通を確認してみます。
+Note:
+デプロイしてみましょう
+
+デプロイが完了したら疎通してみます。
 ---
 ### [App Runner してみる] まとめ
 
