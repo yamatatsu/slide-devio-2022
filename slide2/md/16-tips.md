@@ -6,7 +6,7 @@
 - ~~RDS してみる~~
 - ~~Bastion してみる~~
 - ~~route53 と ACM してみる~~
-- Tipsとか小ネタ
+- **Tipsなど**
 ---
 
 ### Tipsとか小ネタ

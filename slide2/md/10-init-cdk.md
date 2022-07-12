@@ -1,4 +1,4 @@
-目次
+### 目次
 
 - **cdk init してみる**
 - App Runner してみる
@@ -6,7 +6,7 @@
 - RDS してみる
 - Bastion してみる
 - route53 と ACM してみる
-- Tips: DB migraion を自動化する
+- Tipsなど
 ---
 # cdk init してみる
 ---

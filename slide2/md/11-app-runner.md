@@ -5,9 +5,8 @@
 - VPC してみる
 - RDS してみる
 - Bastion してみる
-- DB migraion してみる
 - route53 と ACM してみる
-- 小ネタ `environment-agnostic` のメリデメ
+- Tipsなど
 ---
 ## App Runner してみる
 ---

@@ -6,7 +6,7 @@
 - ~~RDS してみる~~
 - **Bastion してみる**
 - route53 と ACM してみる
-- 小ネタ `environment-agnostic` のメリデメ
+- Tipsなど
 ---
 ```ts [|64-68]
 import { Stack, StackProps } from "aws-cdk-lib";
