@@ -10,10 +10,15 @@ export class PlaygroundCdkStack extends cdk.Stack {
     super(scope, id, props);
 
     const vpc = new ec2.Vpc(this, "Vpc", {
-      maxAzs: 2,
-      natGateways: 0,
+      natGatewayProvider: ec2.NatProvider.instance({
+        instanceType: ec2.InstanceType.of(
+          ec2.InstanceClass.T3,
+          ec2.InstanceSize.NANO
+        ),
+      }),
       subnetConfiguration: [
-        { name: "app-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+        { name: "public-subnet", subnetType: ec2.SubnetType.PUBLIC },
+        { name: "app-subnet", subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
         { name: "db-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
       ],
     });
@@ -78,5 +83,11 @@ export class PlaygroundCdkStack extends cdk.Stack {
       subnetSelection: vpc.selectSubnets({ subnetGroupName: "app-subnet" }),
     });
     database.connections.allowDefaultPortFrom(bastion);
+
+    const bastion2 = new ec2.BastionHostLinux(this, "Bastion2", {
+      vpc,
+      subnetSelection: vpc.selectSubnets({ subnetGroupName: "public-subnet" }),
+    });
+    database.connections.allowDefaultPortFrom(bastion2);
   }
 }
