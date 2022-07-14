@@ -17,9 +17,21 @@ export class PlaygroundCdkStack extends cdk.Stack {
         ),
       }),
       subnetConfiguration: [
-        { name: "public-subnet", subnetType: ec2.SubnetType.PUBLIC },
-        { name: "app-subnet", subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
-        { name: "db-subnet", subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+        {
+          name: "public-subnet",
+          subnetType: ec2.SubnetType.PUBLIC,
+          cidrMask: 24,
+        },
+        {
+          name: "app-subnet",
+          subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
+          cidrMask: 24,
+        },
+        {
+          name: "db-subnet",
+          subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+          cidrMask: 28,
+        },
       ],
     });
 
