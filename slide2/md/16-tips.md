@@ -14,6 +14,7 @@
 - `environment-agnostic` のメリデメ
 - GitHub Actionsでデプロイ
 - 環境ごとの値の管理
+- isolated subnetでbastionを建てるとき
 ---
 ### `environment-agnostic` のメリデメ
 ---
@@ -129,3 +130,25 @@ export class MyStack extends Stack {
 </code></pre>
 Note:natGatewaysに0を指定することで、Nat GatewayとInstanceの両方を作成しない設定もできます
 ---
+
+```ts
+vpc.addInterfaceEndpoint("Ssm", {
+  service: ec2.InterfaceVpcEndpointAwsService.SSM,
+  subnets: { subnetGroupName: "app-subnet" },
+});
+vpc.addInterfaceEndpoint("SsmMessages", {
+  service: ec2.InterfaceVpcEndpointAwsService.SSM_MESSAGES,
+  subnets: { subnetGroupName: "app-subnet" },
+});
+vpc.addInterfaceEndpoint("Ec2Messages", {
+  service: ec2.InterfaceVpcEndpointAwsService.EC2_MESSAGES,
+  subnets: { subnetGroupName: "app-subnet" },
+});
+```
+---
+```sql
+CREATE TABLE items (
+  id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(30) NOT NULL
+);
+```
