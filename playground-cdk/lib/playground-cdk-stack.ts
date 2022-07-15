@@ -10,17 +10,27 @@ export class PlaygroundCdkStack extends cdk.Stack {
     super(scope, id, props);
 
     const vpc = new ec2.Vpc(this, "Vpc", {
-      natGateways: 0,
+      natGatewayProvider: ec2.NatProvider.instance({
+        instanceType: ec2.InstanceType.of(
+          ec2.InstanceClass.T3,
+          ec2.InstanceSize.NANO
+        ),
+      }),
       subnetConfiguration: [
-        {
-          name: "app-subnet",
-          subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-          cidrMask: 24,
-        },
         {
           name: "db-subnet",
           subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
           cidrMask: 28,
+        },
+        {
+          name: "app-subnet",
+          subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
+          cidrMask: 24,
+        },
+        {
+          name: "public-subnet",
+          subnetType: ec2.SubnetType.PUBLIC,
+          cidrMask: 24,
         },
       ],
     });
@@ -85,18 +95,5 @@ export class PlaygroundCdkStack extends cdk.Stack {
       subnetSelection: vpc.selectSubnets({ subnetGroupName: "app-subnet" }),
     });
     database.connections.allowDefaultPortFrom(bastion);
-
-    vpc.addInterfaceEndpoint("Ssm", {
-      service: ec2.InterfaceVpcEndpointAwsService.SSM,
-      subnets: { subnetGroupName: "app-subnet" },
-    });
-    vpc.addInterfaceEndpoint("SsmMessages", {
-      service: ec2.InterfaceVpcEndpointAwsService.SSM_MESSAGES,
-      subnets: { subnetGroupName: "app-subnet" },
-    });
-    vpc.addInterfaceEndpoint("Ec2Messages", {
-      service: ec2.InterfaceVpcEndpointAwsService.EC2_MESSAGES,
-      subnets: { subnetGroupName: "app-subnet" },
-    });
   }
 }
