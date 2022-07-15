@@ -77,6 +77,19 @@ export class PlaygroundCdkStack extends Stack {
       subnetSelection: vpc.selectSubnets({ subnetGroupName: "app-subnet" }),
     });
     database.connections.allowDefaultPortFrom(bastion);
+
+    vpc.addInterfaceEndpoint("Ssm", {
+      service: ec2.InterfaceVpcEndpointAwsService.SSM,
+      subnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
+    });
+    vpc.addInterfaceEndpoint("SsmMessages", {
+      service: ec2.InterfaceVpcEndpointAwsService.SSM_MESSAGES,
+      subnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
+    });
+    vpc.addInterfaceEndpoint("Ec2Messages", {
+      service: ec2.InterfaceVpcEndpointAwsService.EC2_MESSAGES,
+      subnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
+    });
   }
 }
 ```
