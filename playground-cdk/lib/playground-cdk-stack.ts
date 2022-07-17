@@ -3,6 +3,7 @@ import * as cdk from "aws-cdk-lib";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as rds from "aws-cdk-lib/aws-rds";
 import * as assets from "aws-cdk-lib/aws-ecr-assets";
+import * as route53 from "aws-cdk-lib/aws-route53";
 import * as apprunner from "@aws-cdk/aws-apprunner-alpha";
 
 export class PlaygroundCdkStack extends cdk.Stack {

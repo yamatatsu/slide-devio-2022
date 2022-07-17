@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "fastify": "^4.0.3",
-    "mariadb": "^3.0.0"
+    "fastify-mariadb": "^2.0.0"
   },
   "devDependencies": {
     "esbuild": "^0.14.46",

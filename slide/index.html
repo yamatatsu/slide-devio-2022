@@ -17,6 +17,15 @@
       rel="stylesheet"
       href="/node_modules/reveal.js/plugin/highlight/monokai.css"
     />
+
+    <!-- Google Fonts Jetbrains mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap"
+      rel="stylesheet"
+    />
+
     <title>AWS CDK で AWS APP RUNNER</title>
     <style>
       .reveal h1,
@@ -25,6 +34,10 @@
       .reveal h4,
       .reveal h5 {
         text-transform: none;
+      }
+
+      code td {
+        font-family: "JetBrains Mono", monospace;
       }
     </style>
   </head>
@@ -42,35 +55,14 @@
           data-background-image="./assets/logo.png"
         ></section>
         <section
-          data-markdown="md/10-init-cdk.md"
+          data-markdown="md/10-init-cdk-app-runner.md"
           data-auto-animate
           data-background-size="400px"
           data-background-position="right bottom"
           data-background-image="./assets/logo.png"
         ></section>
         <section
-          data-markdown="md/11-app-runner.md"
-          data-auto-animate
-          data-background-size="400px"
-          data-background-position="right bottom"
-          data-background-image="./assets/logo.png"
-        ></section>
-        <section
-          data-markdown="md/12-vpc.md"
-          data-auto-animate
-          data-background-size="400px"
-          data-background-position="right bottom"
-          data-background-image="./assets/logo.png"
-        ></section>
-        <section
-          data-markdown="md/13-rds.md"
-          data-auto-animate
-          data-background-size="400px"
-          data-background-position="right bottom"
-          data-background-image="./assets/logo.png"
-        ></section>
-        <section
-          data-markdown="md/14-bastion.md"
+          data-markdown="md/11-connect-to-rds.md"
           data-auto-animate
           data-background-size="400px"
           data-background-position="right bottom"
