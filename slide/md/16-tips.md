@@ -1,10 +1,7 @@
 ### 目次
 
-- ~~cdk init してみる~~
-- ~~App Runner してみる~~
-- ~~VPC してみる~~
-- ~~RDS してみる~~
-- ~~Bastion してみる~~
+- ~~CDK で App Runner してみる~~
+- ~~RDS に繋いでみる~~
 - ~~route53 と ACM してみる~~
 - **Tipsなど**
 ---
