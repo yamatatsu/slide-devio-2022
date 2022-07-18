@@ -2,6 +2,7 @@ import { Construct } from "constructs";
 import * as cdk from "aws-cdk-lib";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as rds from "aws-cdk-lib/aws-rds";
+import * as iam from "aws-cdk-lib/aws-iam";
 import * as assets from "aws-cdk-lib/aws-ecr-assets";
 import * as cr from "aws-cdk-lib/custom-resources";
 import * as apprunner from "@aws-cdk/aws-apprunner-alpha";
@@ -64,31 +65,22 @@ export class PlaygroundCdkStack extends cdk.Stack {
       platform: assets.Platform.LINUX_AMD64,
     });
 
+    const instanceRole = new iam.Role(this, "InstanceRole", {
+      assumedBy: new iam.ServicePrincipal("tasks.apprunner.amazonaws.com"),
+    });
+    database.secret!.grantRead(instanceRole);
     const service = new apprunner.Service(this, "Service", {
       source: apprunner.Source.fromAsset({
         asset: asset,
         imageConfiguration: {
           port: 3000,
           environment: {
-            DB_USERNAME: database
-              .secret!.secretValueFromJson("username")
-              .unsafeUnwrap(),
-            DB_PASSWORD: database
-              .secret!.secretValueFromJson("password")
-              .unsafeUnwrap(),
-            DB_HOST: database
-              .secret!.secretValueFromJson("host")
-              .unsafeUnwrap(),
-            DB_PORT: database
-              .secret!.secretValueFromJson("port")
-              .unsafeUnwrap(),
-            DB_NAME: database
-              .secret!.secretValueFromJson("dbname")
-              .unsafeUnwrap(),
+            DB_SECRET_NAME: database.secret!.secretName,
           },
         },
       }),
       vpcConnector,
+      instanceRole: instanceRole,
     });
 
     const bastion = new ec2.BastionHostLinux(this, "Bastion", {
@@ -97,7 +89,7 @@ export class PlaygroundCdkStack extends cdk.Stack {
     });
     database.connections.allowDefaultPortFrom(bastion);
 
-    const customDomain = new cr.AwsCustomResource(this, "CustomDomain", {
+    new cr.AwsCustomResource(this, "CustomDomain", {
       onCreate: {
         service: "AppRunner",
         action: "associateCustomDomain",

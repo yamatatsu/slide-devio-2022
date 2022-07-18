@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.131.0",
     "fastify": "^4.0.3",
     "fastify-mariadb": "^2.0.0"
   },

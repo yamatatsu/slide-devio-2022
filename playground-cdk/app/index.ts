@@ -1,15 +1,11 @@
 import fastify from "fastify";
 import { Pool } from "mariadb";
+import {
+  SecretsManagerClient,
+  GetSecretValueCommand,
+} from "@aws-sdk/client-secrets-manager";
 
 const app = fastify({ logger: true });
-app.register(require("fastify-mariadb"), {
-  host: getEnv("DB_HOST"),
-  port: parseInt(getEnv("DB_PORT")),
-  database: getEnv("DB_NAME"),
-  user: getEnv("DB_USERNAME"),
-  password: getEnv("DB_PASSWORD"),
-  promise: true,
-});
 
 app.get("/", (req, res) => {
   res.send("OK");
@@ -21,15 +17,27 @@ app.get("/items", async (req, res) => {
   res.send({ items });
 });
 
-app.listen({ port: 3000, host: "0.0.0.0" });
+const secretsManagerClient = new SecretsManagerClient({
+  region: "ap-northeast-1",
+});
+secretsManagerClient
+  .send(new GetSecretValueCommand({ SecretId: process.env.DB_SECRET_NAME }))
+  .then(({ SecretString: secretString = "" }) => {
+    const secrets = JSON.parse(secretString);
+    app.register(require("fastify-mariadb"), {
+      host: secrets.host,
+      port: secrets.port,
+      database: secrets.dbname,
+      user: secrets.username,
+      password: secrets.password,
+      promise: true,
+    });
 
-function getEnv(name: string): string {
-  const val = process.env[name];
-  if (!val) {
-    throw new Error(`No env ${name} is found. It is needed.`);
-  }
-  return val;
-}
+    app.listen({ port: 3000, host: "0.0.0.0" });
+  })
+  .catch((err) => {
+    console.error(err);
+  });
 
 declare module "fastify" {
   interface FastifyInstance {
