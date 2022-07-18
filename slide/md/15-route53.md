@@ -2,26 +2,37 @@
 
 - ~~CDK で App Runner してみる~~
 - ~~RDS に繋いでみる~~
-- **route53 と ACM してみる**
+- **カスタムドメインを設定してみる**
 - Tipsなど
 ---
 
-## route53 と ACM してみる
+## カスタムドメインを設定してみる
 ---
 CloudFormationはサポートしていません  
-[GitHub Issue](https://github.com/aws-cloudformation/cloudformation-coverage-roadmap/issues/1092)  
 ![](./assets/gh-issue-apprunner-custom-domain.png) <!-- .element: height="500px" -->
+Notes:
+GitHub Issue  
+https://github.com/aws-cloudformation/cloudformation-coverage-roadmap/issues/1092
 ---
 でもAPIはサポートしていています
 ![](./assets/app-runner-api-associate-custom-domain.png) <!-- .element: height="450px" -->
+Notes:
+API Reference
+https://docs.aws.amazon.com/ja_jp/apprunner/latest/api/API_AssociateCustomDomain.html <!-- .element: style="overflow-wrap: break-word;" -->
 ---
-### じゃあCustom Resourceだ
+## じゃあCustom Resourceだ
 ---
-```ts [|6|78-101]
+### Custom Resource とは
+- CloudFormationが用意してくれている機能
+- LambdaをCloudFormationのリソースとして呼び出せる
+- CDKではSDKを呼び出すだけのCustom Resourceを簡単に作成できる
+---
+```ts [|6|81-104]
 import { Construct } from "constructs";
 import * as cdk from "aws-cdk-lib";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as rds from "aws-cdk-lib/aws-rds";
+import * as iam from "aws-cdk-lib/aws-iam";
 import * as assets from "aws-cdk-lib/aws-ecr-assets";
 import * as cr from "aws-cdk-lib/custom-resources";
 import * as apprunner from "@aws-cdk/aws-apprunner-alpha";
@@ -72,21 +83,23 @@ export class PlaygroundCdkStack extends cdk.Stack {
       platform: assets.Platform.LINUX_AMD64,
     });
 
+    const instanceRole = new iam.Role(this, "InstanceRole", {
+      assumedBy: new iam.ServicePrincipal("tasks.apprunner.amazonaws.com"),
+    });
+    database.secret!.grantRead(instanceRole);
+
     const service = new apprunner.Service(this, "Service", {
       source: apprunner.Source.fromAsset({
         asset: asset,
         imageConfiguration: {
           port: 3000,
           environment: {
-            DB_USERNAME: database.secret!.secretValueFromJson("username").unsafeUnwrap(),
-            DB_PASSWORD: database.secret!.secretValueFromJson("password").unsafeUnwrap(),
-            DB_HOST: database.secret!.secretValueFromJson("host").unsafeUnwrap(),
-            DB_PORT: database.secret!.secretValueFromJson("port").unsafeUnwrap(),
-            DB_NAME: database.secret!.secretValueFromJson("dbname").unsafeUnwrap(),
+            DB_SECRET_NAME: database.secret!.secretName,
           },
         },
       }),
       vpcConnector,
+      instanceRole: instanceRole,
     });
 
     const bastion = new ec2.BastionHostLinux(this, "Bastion", {
@@ -95,7 +108,7 @@ export class PlaygroundCdkStack extends cdk.Stack {
     });
     database.connections.allowDefaultPortFrom(bastion);
 
-    const customDomain = new cr.AwsCustomResource(this, "CustomDomain", {
+    new cr.AwsCustomResource(this, "CustomDomain", {
       onCreate: {
         service: "AppRunner",
         action: "associateCustomDomain",
@@ -127,32 +140,9 @@ Notes:
 
 AwsCustomResource を作成します。
 ---
-```bash
-# terminal にて
-
-> aws apprunner describe-custom-domains --service-arn=<serviceのARN>
-# {
-#   "DNSTarget": "etnuyuz42q.ap-northeast-1.awsapprunner.com",
-#   "CustomDomains": [
-#     {
-#       "CertificateValidationRecords": [
-#         {
-#           "Name": "_xxx.play-apprunner.yamatatsu.dev.",
-#           "Value": "_xxx.xxx.acm-validations.aws.",
-#         },
-#         {
-#           "Name": "_xxx.xxx.play-apprunner.yamatatsu.dev.",
-#           "Value": "_xxx.xxx.acm-validations.aws.",
-#         }
-#       ],
-#     }
-#   ]
-# }
-```
+![](./assets/app-runner-cd-validation.png) <!-- .element: height="600px" -->
 Notes:
 CDKのデプロイが完了したら、ACM検証用とカスタムドメイン用のドメイン設定事項を確認し、DNSレコードを設定します。
-
-Webコンソールで確認するほうが丁寧に書いてあります。
 ---
 ```bash
 # terminal にて

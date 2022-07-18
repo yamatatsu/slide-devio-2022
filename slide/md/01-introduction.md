@@ -28,11 +28,11 @@
   </ul>
 </dev>
 ---
-![](./assets/jaws-cdk.png) <!-- .element style="height: 30vh" -->
+![](./assets/jaws-cdk.png) <!-- .element height="500" -->
 
 https://twitter.com/jawsug_cdk
 ---
-![](./assets/cdk-contribution.png) <!-- .element style="height: 30vh" -->
+![](./assets/cdk-contribution.png) <!-- .element height="500" -->
 
 https://github.com/aws/aws-cdk/graphs/contributors
 ---

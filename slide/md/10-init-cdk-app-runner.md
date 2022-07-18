@@ -2,10 +2,10 @@
 
 - **CDK で App Runner してみる**
 - RDS に繋いでみる
-- route53 と ACM してみる
+- カスタムドメインを設定してみる
 - Tipsなど
 ---
-# cdk init してみる
+# CDK で App Runner してみる
 ---
 ```bash
 # terminal にて
@@ -18,7 +18,7 @@
 
 Note: まずはディレクトリを掘って、initを唱えます
 ---
-```text [|5-6|6]
+```text [|4-5]
 .
 ├── bin
 │   └── playground-cdk.ts
@@ -33,8 +33,7 @@ Note: まずはディレクトリを掘って、initを唱えます
 Note:
 こんな感じの構成が生成されます。（一部省略）
 
-このlib配下のファイルにAWSの構成を記述していきます。
-
+このlib配下のファイルにAWSの構成を記述していきます。  
 今回は簡単のため、stackは増やさずに、一つのstackにドカドカリソースを詰めていきます。
 ---
 さっそく、lib/playground-cdk-stack.tsを編集！
@@ -44,7 +43,7 @@ Note:
 ```bash
 # terminal にて
 
-> npm i -S @aws-cdk/aws-apprunner-alpha
+> npm install @aws-cdk/aws-apprunner-alpha
 ```
 Note:
 今回作成するApp RunnerのL2コンストラクタ、aws-apprunner-alpha をインストールします
@@ -192,6 +191,4 @@ Note:
 
 デプロイが完了したら疎通してみます。
 ---
-### OKが返ってきた 🎉
-
-### かんたん！
+### App Runner できた 🎉

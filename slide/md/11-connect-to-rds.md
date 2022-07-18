@@ -2,7 +2,7 @@
 
 - ~~CDK で App Runner してみる~~
 - **RDS に繋いでみる**
-- route53 と ACM してみる
+- カスタムドメインを設定してみる
 - Tipsなど
 ---
 ## RDS に繋いでみる
@@ -15,12 +15,13 @@ Note: CDKでも5月に、PRがマージされてL2として使うことができ
 ---
 さっそくstackの中身を修正していきます！
 ---
-```ts [|3-4|11-24|43-46|68|26-41|47|59-65|71-75|]
+```ts [|3-5|13-25|44-47|70|27-42|48,65-67,55-58,71|74-78|]
 import { Construct } from "constructs";
 import * as cdk from "aws-cdk-lib";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as rds from "aws-cdk-lib/aws-rds";
-import * as assets from "aws-cdk-lib/aws-ecr-assets"; 
+import * as iam from "aws-cdk-lib/aws-iam";
+import * as assets from "aws-cdk-lib/aws-ecr-assets";
 import * as apprunner from "@aws-cdk/aws-apprunner-alpha";
 
 export class PlaygroundCdkStack extends Stack {
@@ -69,21 +70,23 @@ export class PlaygroundCdkStack extends Stack {
       platform: assets.Platform.LINUX_AMD64,
     });
 
+    const instanceRole = new iam.Role(this, "InstanceRole", {
+      assumedBy: new iam.ServicePrincipal("tasks.apprunner.amazonaws.com"),
+    });
+    database.secret!.grantRead(instanceRole);
+
     new apprunner.Service(this, "Service", {
       source: apprunner.Source.fromAsset({
         asset: asset,
         imageConfiguration: {
           port: 3000,
           environment: {
-            DB_USERNAME: database.secret!.secretValueFromJson("username").unsafeUnwrap(),
-            DB_PASSWORD: database.secret!.secretValueFromJson("password").unsafeUnwrap(),
-            DB_HOST: database.secret!.secretValueFromJson("host").unsafeUnwrap(),
-            DB_PORT: database.secret!.secretValueFromJson("port").unsafeUnwrap(),
-            DB_NAME: database.secret!.secretValueFromJson("dbname").unsafeUnwrap(),
+            DB_SECRET_NAME: database.secret!.secretName,
           },
         },
       }),
       vpcConnector,
+      instanceRole: instanceRole,
     });
 
     const bastion = new ec2.BastionHostLinux(this, "Bastion", {
@@ -107,25 +110,19 @@ apprunner.Service に渡してあげれば、これでVPCとApp Runnerを繋ぐ�
 
 次に、 DatabaseCluster を作成して、
 
-VpcConnector に対してAuroraへのアクセスを許可します。
-
-コンテナの中で接続に使うための環境変数も定義してあげましょう。
+App RunnerからAuroraへ接続するための設定をしていきます。
 
 最後に、DBを設定するための踏み台サーバーを用意します。
 ---
 ```ts []
 import fastify from "fastify";
 import { Pool } from "mariadb";
+import {
+  SecretsManagerClient,
+  GetSecretValueCommand,
+} from "@aws-sdk/client-secrets-manager";
 
 const app = fastify({ logger: true });
-app.register(require("fastify-mariadb"), {
-  host: getEnv("DB_HOST"),
-  port: parseInt(getEnv("DB_PORT")),
-  database: getEnv("DB_NAME"),
-  user: getEnv("DB_USERNAME"),
-  password: getEnv("DB_PASSWORD"),
-  promise: true,
-});
 
 app.get("/", (req, res) => {
   res.send("OK");
@@ -137,15 +134,27 @@ app.get("/items", async (req, res) => {
   res.send({ items });
 });
 
-app.listen({ port: 3000, host: "0.0.0.0" });
+const secretsManagerClient = new SecretsManagerClient({
+  region: "ap-northeast-1",
+});
+secretsManagerClient
+  .send(new GetSecretValueCommand({ SecretId: process.env.DB_SECRET_NAME }))
+  .then(({ SecretString: secretString = "" }) => {
+    const secrets = JSON.parse(secretString);
+    app.register(require("fastify-mariadb"), {
+      host: secrets.host,
+      port: secrets.port,
+      database: secrets.dbname,
+      user: secrets.username,
+      password: secrets.password,
+      promise: true,
+    });
 
-function getEnv(name: string): string {
-  const val = process.env[name];
-  if (!val) {
-    throw new Error(`No env ${name} is found. It is needed.`);
-  }
-  return val;
-}
+    app.listen({ port: 3000, host: "0.0.0.0" });
+  })
+  .catch((err) => {
+    console.error(err);
+  });
 
 declare module "fastify" {
   interface FastifyInstance {
