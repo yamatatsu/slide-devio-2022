@@ -9,4 +9,4 @@
 最後にクイズです！
 ---
 DevelopersIO 2022 イベントサイトの ○○○○○○ を見よう！○○○○○○ の部分は下の画像がヒントだよ！  
-![](./assets/quiz.png) <!-- .element: height="500px" -->
+![](./quiz.png) <!-- .element: height="500px" -->
