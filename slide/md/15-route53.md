@@ -27,7 +27,7 @@ https://docs.aws.amazon.com/ja_jp/apprunner/latest/api/API_AssociateCustomDomain
 - LambdaをCloudFormationのリソースとして呼び出せる
 - CDKではSDKを呼び出すだけのCustom Resourceを簡単に作成できる
 ---
-```ts [|6|81-104]
+```ts [|7|81-104]
 import { Construct } from "constructs";
 import * as cdk from "aws-cdk-lib";
 import * as ec2 from "aws-cdk-lib/aws-ec2";

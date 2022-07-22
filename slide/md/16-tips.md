@@ -2,52 +2,62 @@
 
 - ~~CDK で App Runner してみる~~
 - ~~RDS に繋いでみる~~
-- ~~route53 と ACM してみる~~
+- ~~カスタムドメインを設定してみる~~
 - **Tipsなど**
 ---
 
 ### Tipsとか小ネタ
 
-- `environment-agnostic` のメリデメ
-- GitHub Actionsでデプロイ
+- ec2.VPC について
+- もっとかっこよくdb migrationしたい
 - 環境ごとの値の管理
-- isolated subnetでbastionを建てるとき
 ---
-### `environment-agnostic` のメリデメ
+### ec2.VPC について
 ---
-```ts [5]
-export class MyStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props);
+<pre data-id="code-animation"><code data-line-numbers="" class="hljs" data-trim>
+new ec2.Vpc(this, "Vpc", {
+});
+</code></pre>
+Notes:
+これだとNatGatewayが作成されます。
+---
+<pre data-id="code-animation"><code data-line-numbers="" class="hljs" data-trim>
+new ec2.Vpc(this, "Vpc", {
+  natGatewayProvider: ec2.NatProvider.instance({
+    instanceType: ec2.InstanceType.of(
+      ec2.InstanceClass.T3,
+      ec2.InstanceSize.NANO
+    ),
+  }),
+});
+</code></pre>
+Notes:
+natGatewayProvider を設定することでnat instanceを作成するように変更できます。
+---
+<pre data-id="code-animation"><code data-line-numbers="" class="hljs" data-trim>
+new ec2.Vpc(this, "Vpc", {
+  natGateways: 0,
+});
+</code></pre>
+Notes:
+natGateways: 0 を設定することでnat gateway, nat instanceのどちらも建てない設定もできます。
 
-    new ec2.Vpc(this, "Vpc", {});
-  }
-}
-```
-Note:
-VPCを作成するだけのStackについて考えてみる。
+この場合は、subnetTypeとしてPRIVATE_WITH_NATは使えなくなることに注意してください。
 ---
-<img src="./assets/vpc-agnostic.png" height="600px" />
-Note:このように、2つのAZしか使ってくれません。
+<pre data-id="code-animation"><code data-line-numbers="" class="hljs" data-trim>
+new ec2.Vpc(this, "Vpc", {
+});
+</code></pre>
+Notes:
+そんなことより、このec2.Vpc、注意しないとAZを2つまでしか使ってくれません。
 ---
-# 🤔
----
-
-```ts [5-7]
-export class MyStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props);
-
-    new ec2.Vpc(this, "Vpc", {
-      maxAzs: 3,
-    });
-  }
-}
-```
-Note:maxAzsを足してみましょう
----
-<img src="./assets/vpc-agnostic.png" height="600px" />
-Note:まだ、2つのAZしか使ってくれません。
+<pre data-id="code-animation"><code data-line-numbers="" class="hljs" data-trim>
+new ec2.Vpc(this, "Vpc", {
+  maxAzs: 3,
+});
+</code></pre>
+Notes:
+このようにmaxAzs: 3を指定しても、2つまでしかAZを使ってくれない場合があります。
 ---
 # 🤔
 ---
@@ -55,9 +65,9 @@ Note:まだ、2つのAZしか使ってくれません。
 Note:ドキュメントを読むと答えが書いてあります
 
 ---
-`environment-agnostic` とは
+`environment-agnostic` ??
 ---
-```ts
+```ts []
 // environment agnostic
 new MyStack(app, 'MyStack', {})
 
@@ -76,76 +86,81 @@ propsにてenvを指定していないstackのこと。
 
 加えて、リージョンのAZをフル活用してくれない問題がある。
 ---
-<img src="./assets/vpc-env-specified.png" height="600px" />
-Note: 🎉
+公式 Doc: https://docs.aws.amazon.com/cdk/v2/guide/environments.html <!-- .element: style="overflow-wrap: break-word;" -->
 ---
-公式 Doc: https://docs.aws.amazon.com/cdk/v2/guide/environments.html
+### もっとかっこよくdb migrationしたい
 ---
-<div class="r-stack">
-  <img src="./assets/vpc-env-specified.png" height="600px" />
-  <img class="fragment" src="./assets/vpc-env-specified-nat.png" height="600px" />
-</div>
-Note:
-ところで、CDKのVPCではデフォルトでNat Gatewayが使われます
----
-
-- 3AZ で 3 台の Nat Gateway
-- Nat Gateway 1 台 0.062 USD/hour
-- 0.062 \* 3 \* 24 \* 30 \* 135.99 = 18,212 円/月くらい
----
-<pre data-id="code-animation"><code data-line-numbers="|6-11|" class="hljs" data-trim>
-export class MyStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props);
-
-    new ec2.Vpc(this, "Vpc", {
-      natGatewayProvider: ec2.NatProvider.instance({
-        instanceType: ec2.InstanceType.of(
-          ec2.InstanceClass.T3,
-          ec2.InstanceSize.NANO
-        ),
-      }),
-    });
-  }
-}
-</code></pre>
-Note:
-VPCの定義にて、
-
-natGatewayProviderにnat instanceを指定することができます
----
-<pre data-id="code-animation"><code data-line-numbers="|6" class="hljs" data-trim>
-export class MyStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props);
-
-    new ec2.Vpc(this, "Vpc", {
-      natGateways: 0,
-    });
-  }
-}
-</code></pre>
-Note:natGatewaysに0を指定することで、Nat GatewayとInstanceの両方を作成しない設定もできます
----
-
-```ts
-vpc.addInterfaceEndpoint("Ssm", {
-  service: ec2.InterfaceVpcEndpointAwsService.SSM,
-  subnets: { subnetGroupName: "app-subnet" },
-});
-vpc.addInterfaceEndpoint("SsmMessages", {
-  service: ec2.InterfaceVpcEndpointAwsService.SSM_MESSAGES,
-  subnets: { subnetGroupName: "app-subnet" },
-});
-vpc.addInterfaceEndpoint("Ec2Messages", {
-  service: ec2.InterfaceVpcEndpointAwsService.EC2_MESSAGES,
-  subnets: { subnetGroupName: "app-subnet" },
-});
-```
----
-```sql
+```sql []
 CREATE TABLE items (
   id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(30) NOT NULL
 );
 ```
+Notes:
+今回のサンプルでは、説明は端折りましたが、裏では上記のようなSQLを踏み台から実行していました。
+
+1. セッションマネージャを用いて踏み台にアクセスし
+1. mysql clientをyumでインストールし
+1. AWS Secrets ManagerからDB接続情報を取り出し
+1. DBにアクセスして
+1. 上記SQLを実行していました。
+---
+それLambdaでやればよいのでは？
+---
+そのLambda，Custom Resourceにしてしまえばよいのでは？
+---
+![](./assets/prisma-migration.png) <!-- .element: height="600px" -->
+Notes:
+https://zenn.dev/winteryukky/articles/d766b9ab98eb23 <!-- .element: style="overflow-wrap: break-word;" -->
+---
+### 環境ごとの値の管理
+---
+cdk.jsonのcontextを使うサンプルが多い
+---
+でもTypeScriptでやるなら .ts でよいと思う
+
+（TS以外の言語は別バナ）
+---
+環境ごとの値を .ts で管理するメリット
+- 余計なanyをコードに持ち込まずに済む
+- key名を間違えたり未定義だったりすると型エラーで検出できる
+- 文字列結合した値とかも用意できる
+Notes:
+TypeScript（javaScript）はJSONを雑に扱うのがうまいので、わざわざ型定義のできないcdk.jsonに書く意味はないはず。
+---
+```ts [|1-6|8-12|15-29|31-32]
+const ENV_NAMES = ["dev", "stg", "prd"] as const;
+type EnvName = typeof ENV_NAMES[number];
+export const envName = (process.env.ENV_NAME as EnvName) || "dev";
+if (!ENV_NAMES.includes(envName)) {
+  throw Error(`Bad ENV_NAME '${envName}'`);
+}
+
+// 型を用意
+type EnvValues = {
+  wafArn: string;
+  domainName: string;
+};
+
+// anyではなくstringとして環境ごとの値を定義できる。
+const envValueMap: Record<EnvName, EnvValues> = {
+  dev: {
+    wafArn: "<dev環境のWAFのARN>",
+    domainName: "dev.yamatatsu.dev",
+  },
+  stg: {
+    wafArn: "<stg環境のWAFのARN>",
+    domainName: "stg.yamatatsu.dev",
+  },
+  prd: {
+    wafArn: "<prd環境のWAFのARN>",
+    domainName: "yamatatsu.dev",
+  },
+};
+export const env = envValueMap[envName];
+
+// 文字列結合した値とかも用意できる
+export const stackPrefix = `${envName}PlayAppRunner`;
+```
+---
+以上、Tipsでした！
