@@ -1,6 +1,6 @@
 <dev style="display: flex; justify-content: center; align-items: center; margin-top: 40px;">
   <img
-    src="./assets/yamatatsu.png"
+    src="./yamatatsu.png"
     height="180"
     width="180"
   />
@@ -28,15 +28,15 @@
   </ul>
 </dev>
 ---
-![](./assets/jaws-cdk.png) <!-- .element height="500" -->
+![](./jaws-cdk.png) <!-- .element height="500" -->
 
 https://twitter.com/jawsug_cdk
 ---
-![](./assets/cdk-contribution.png) <!-- .element height="500" -->
+![](./cdk-contribution.png) <!-- .element height="500" -->
 
 https://github.com/aws/aws-cdk/graphs/contributors
 ---
-![](./assets/using-cdk.png) <!-- .element style="width: 80vw" -->
+![](./using-cdk.png) <!-- .element style="width: 80vw" -->
 ---
 ### この登壇の狙い
 

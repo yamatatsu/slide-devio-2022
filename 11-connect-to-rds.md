@@ -7,10 +7,10 @@
 ---
 ## RDS に繋いでみる
 ---
-![](./assets/press-of-vpc-connector.png) <!-- .element height="500" -->
+![](./press-of-vpc-connector.png) <!-- .element height="500" -->
 Note: 今年の2月に、App RunnerはVPCと繋ぐことができるようになりました
 ---
-![](./assets/apprunner-vpc-connect.png) <!-- .element height="600" -->
+![](./apprunner-vpc-connect.png) <!-- .element height="600" -->
 Note: CDKでも5月に、PRがマージされてL2として使うことができるようになりました。
 ---
 さっそくstackの中身を修正していきます！

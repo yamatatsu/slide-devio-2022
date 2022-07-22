@@ -9,13 +9,13 @@
 ## カスタムドメインを設定してみる
 ---
 CloudFormationはサポートしていません  
-![](./assets/gh-issue-apprunner-custom-domain.png) <!-- .element: height="500px" -->
+![](./gh-issue-apprunner-custom-domain.png) <!-- .element: height="500px" -->
 Notes:
 GitHub Issue  
 https://github.com/aws-cloudformation/cloudformation-coverage-roadmap/issues/1092
 ---
 でもAPIはサポートしていています
-![](./assets/app-runner-api-associate-custom-domain.png) <!-- .element: height="450px" -->
+![](./app-runner-api-associate-custom-domain.png) <!-- .element: height="450px" -->
 Notes:
 API Reference
 https://docs.aws.amazon.com/ja_jp/apprunner/latest/api/API_AssociateCustomDomain.html <!-- .element: style="overflow-wrap: break-word;" -->
@@ -140,7 +140,7 @@ Notes:
 
 AwsCustomResource を作成します。
 ---
-![](./assets/app-runner-cd-validation.png) <!-- .element: height="600px" -->
+![](./app-runner-cd-validation.png) <!-- .element: height="600px" -->
 Notes:
 CDKのデプロイが完了したら、ACM検証用とカスタムドメイン用のドメイン設定事項を確認し、DNSレコードを設定します。
 ---

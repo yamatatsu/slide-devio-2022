@@ -61,7 +61,7 @@ Notes:
 ---
 # 🤔
 ---
-<img src="./assets/jsdoc-vpc-maxAzs.png" height="600px" />
+<img src="./jsdoc-vpc-maxAzs.png" height="600px" />
 Note:ドキュメントを読むと答えが書いてあります
 
 ---
@@ -109,7 +109,7 @@ Notes:
 ---
 そのLambda，Custom Resourceにしてしまえばよいのでは？
 ---
-![](./assets/prisma-migration.png) <!-- .element: height="600px" -->
+![](./prisma-migration.png) <!-- .element: height="600px" -->
 Notes:
 https://zenn.dev/winteryukky/articles/d766b9ab98eb23 <!-- .element: style="overflow-wrap: break-word;" -->
 ---

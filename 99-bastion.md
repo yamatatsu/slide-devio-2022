@@ -102,4 +102,4 @@ https://github.com/aws/aws-cdk/blob/main/packages/%40aws-cdk/aws-ec2/lib/bastion
 ---
 中に入ってDBをほげほげしてnodeから繋ぐ
 ---
-[![](../assets/prisma-migration.png) <!-- .element height="600" -->](https://zenn.dev/winteryukky/articles/d766b9ab98eb23)
+[![](../prisma-migration.png) <!-- .element height="600" -->](https://zenn.dev/winteryukky/articles/d766b9ab98eb23)
