@@ -1,3 +1,7 @@
+サンプルとこのスライドのコード
+
+https://github.com/yamatatsu/slide-devio-2022
+---
 <dev style="display: flex; justify-content: center; align-items: center; margin-top: 40px;">
   <img
     src="./yamatatsu.png"
