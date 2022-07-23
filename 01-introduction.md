@@ -40,6 +40,10 @@ https://twitter.com/jawsug_cdk
 
 https://github.com/aws/aws-cdk/graphs/contributors
 ---
+![](./contributions-chart-race.png) <!-- .element height="500" -->
+
+https://yamatatsu.github.io/aws-cdk-contribution-chart/
+---
 ![](./using-cdk.png) <!-- .element style="width: 80vw" -->
 ---
 ### この登壇の狙い
