@@ -27,7 +27,7 @@ https://docs.aws.amazon.com/ja_jp/apprunner/latest/api/API_AssociateCustomDomain
 - LambdaをCloudFormationのリソースとして呼び出せる
 - CDKではSDKを呼び出すだけのCustom Resourceを簡単に作成できる
 ---
-```ts [|7|81-104]
+```ts [|7|81-104|81|82-91|92-100|101-103]
 import { Construct } from "constructs";
 import * as cdk from "aws-cdk-lib";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
@@ -140,9 +140,15 @@ Notes:
 
 AwsCustomResource を作成します。
 ---
+```bash
+# terminal にて
+
+> npx cdk deploy
+```
+Note: デプロイしてみましょう
+---
 ![](./app-runner-cd-validation.png) <!-- .element: height="600px" -->
-Notes:
-CDKのデプロイが完了したら、ACM検証用とカスタムドメイン用のドメイン設定事項を確認し、DNSレコードを設定します。
+Notes: CDKのデプロイが完了したら、ACM検証用とカスタムドメイン用のドメイン設定事項を確認し、DNSレコードを設定します。
 ---
 ```bash
 # terminal にて

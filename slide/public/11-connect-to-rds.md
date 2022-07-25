@@ -114,7 +114,7 @@ App RunnerからAuroraへ接続するための設定をしていきます。
 
 最後に、DBを設定するための踏み台サーバーを用意します。
 ---
-```ts []
+```ts [|23-25|25-34]
 import fastify from "fastify";
 import { Pool } from "mariadb";
 import {
@@ -170,12 +170,18 @@ Note:
 ```bash
 # terminal にて
 
+> npx cdk deploy
+```
+Note:
+デプロイしてみましょう
+---
+```bash
+# terminal にて
+
 > curl https://xxxxxxxxxx.ap-northeast-1.awsapprunner.com/items
 # {"items":[{"id":1,"name":"sample"}]}
 ```
 Note:
-デプロイしてみましょう
-
 デプロイが完了したら /items を呼び出してみます。
 ---
 ### App RunnerからRDSに接続できました！ 🎉
