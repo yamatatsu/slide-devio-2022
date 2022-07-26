@@ -11,11 +11,11 @@ https://github.com/yamatatsu/slide-devio-2022
   <ul style="list-style-type: none; line-height: 1.4">
     <li style="font-size: 36px; font-weight: 700;">山本達也（やまたつ）</li>
     <li style="font-size: 20px; margin-bottom: 0px;">クラスメソッド株式会社</li>
-    <li style="font-size: 20px; margin-bottom: 24px;">CX事業本部 デリバリー部 IoTグループ</li>
+    <li style="font-size: 20px; margin-bottom: 16px;">CX事業本部 デリバリー部 IoTグループ</li>
     <li style="font-size: 20px; margin-bottom: 0px;">
       <a href="https://twitter.com/yamatatsu193">Twitter: @yamatatsu193</a>
     </li>
-    <li style="font-size: 20px; margin-bottom: 8px;">
+    <li style="font-size: 20px; margin-bottom: 16px;">
       <a href="https://github.com/yamatatsu">GitHub: @yamatatsu</a>
     </li>
     <li style="font-size: 20px; margin-bottom: 8px;">
