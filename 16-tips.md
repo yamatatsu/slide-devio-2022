@@ -86,7 +86,7 @@ propsにてenvを指定していないstackのこと。
 
 加えて、リージョンのAZをフル活用してくれない問題がある。
 
-余談だが、[App RunnerのドキュメントにもAZを3つ以上つくことが望ましい旨が記載されている](https://docs.aws.amazon.com/apprunner/latest/dg/network-vpc.html#:~:text=we%20recommend%20that%20you%20select%20subnets%20across%20at%20least%20three%20Availability%20Zones.)。
+余談だが、[App RunnerのドキュメントにもAZを3つ以上使うことが望ましい旨が記載されている](https://docs.aws.amazon.com/apprunner/latest/dg/network-vpc.html#:~:text=we%20recommend%20that%20you%20select%20subnets%20across%20at%20least%20three%20Availability%20Zones.)。
 ---
 公式のEnvironment Agnosticに関する説明: https://docs.aws.amazon.com/cdk/v2/guide/environments.html <!-- .element: style="overflow-wrap: break-word;" -->
 ---
