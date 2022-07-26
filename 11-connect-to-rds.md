@@ -8,6 +8,9 @@
 ## RDS に繋いでみる
 ---
 ![](./aws-architecture.png) <!-- .element height="600" style="margin-top: 0" -->
+Notes: もう一度、構成図を見てみましょう。
+
+この図の右側の盛りだくさんのとこについて、説明していきます。
 ---
 ![](./press-of-vpc-connector.png) <!-- .element height="500" -->
 Note: 今年の2月に、App RunnerはVPCと繋ぐことができるようになりました
@@ -116,7 +119,7 @@ App RunnerからAuroraへ接続するための設定をしていきます。
 
 最後に、DBを設定するための踏み台サーバーを用意します。
 ---
-```ts [|23-25|25-34]
+```ts [|23-25|25-34|14-18]
 import fastify from "fastify";
 import { Pool } from "mariadb";
 import {
