@@ -49,10 +49,6 @@ CDKに関する質問や共有などなんでも！
 
 https://github.com/aws/aws-cdk/graphs/contributors
 ---
-![](./contributions-chart-race.png) <!-- .element height="500" -->
-
-https://yamatatsu.github.io/aws-cdk-contribution-chart/
----
 改めてタイトル
 ---
 # AWS CDK で
@@ -63,7 +59,7 @@ https://yamatatsu.github.io/aws-cdk-contribution-chart/
   - 簡単な設定でコンテナ化したWebサーバーをAWS環境にローンチできる <!-- .element style="font-size: 32px; line-height: 60px" -->
 - **AWS CDKとは？**
   - Infrastructure as Code (IaC) <!-- .element style="font-size: 32px; line-height: 60px" -->
-  - 高級プログラミング言語を用いてクラウドインフラストラクチャを定義できる <!-- .element style="font-size: 32px; line-height: 60px" -->
+  - アプリケーションのプログラミング言語を用いてクラウドインフラストラクチャを定義できる <!-- .element style="font-size: 32px; line-height: 60px" -->
 ---
 ![](./using-cdk.png) <!-- .element style="width: 80vw" -->
 ---
