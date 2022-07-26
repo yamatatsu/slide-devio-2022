@@ -53,7 +53,7 @@ https://github.com/aws/aws-cdk/graphs/contributors
 改めてタイトル
 ---
 # AWS CDK で
-# AWS App Runner
+# AWS App Runner <!-- .element style="text-transform: none" -->
 ---
 - **AWS App Runnerとは？**
   - フルマネージドコンテナサービス <!-- .element style="font-size: 32px; line-height: 60px" -->

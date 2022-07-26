@@ -5,7 +5,7 @@
 - カスタムドメインを設定してみる
 - Tipsなど
 ---
-# CDK で App Runner してみる
+# CDK で App Runner してみる <!-- .element style="text-transform: none" -->
 ---
 ```bash
 # terminal にて
