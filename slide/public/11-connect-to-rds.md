@@ -186,4 +186,4 @@ Note:
 Note:
 デプロイが完了したら /items を呼び出してみます。
 ---
-### App RunnerからRDSに接続できました！ 🎉
+### App RunnerからRDSに接続できました！ 🎉 <!-- .element style="text-transform: none" -->
