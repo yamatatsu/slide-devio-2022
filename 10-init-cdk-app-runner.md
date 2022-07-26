@@ -17,6 +17,8 @@
 ```
 
 Note: まずはディレクトリを掘って、initを唱えます
+
+この **npx cdk init** を唱えると、ボイラープレートを用いてCDKの環境を初期化してくれます。
 ---
 ```text [|4-5]
 .
@@ -100,8 +102,6 @@ export class PlaygroundCdkStack extends Stack {
           port: 3000,
         },
       }),
-      // cpu: apprunner.Cpu.TWO_VCPU,
-      // memory: apprunner.Memory.FOUR_GB,
     });
   }
 }
@@ -115,38 +115,7 @@ assets.DockerImageAsset を使ってデプロイするコンテナイメージ�
 
 apprunner.Service を使ってデプロイするApp Runnerを定義します。
 ---
-<pre data-id="code-animation"><code data-line-numbers="15-24|22-23" class="hljs" data-trim>
-import { Stack, StackProps } from "aws-cdk-lib";
-import { Construct } from "constructs";
-import * as assets from "aws-cdk-lib/aws-ecr-assets";
-import * as apprunner from "@aws-cdk/aws-apprunner-alpha";
-
-export class PlaygroundCdkStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props);
-
-    const asset = new assets.DockerImageAsset(this, "ImageAssets", {
-      directory: "./app",
-      platform: assets.Platform.LINUX_AMD64,
-    });
-
-    new apprunner.Service(this, "Service", {
-      source: apprunner.Source.fromAsset({
-        asset: asset,
-        imageConfiguration: {
-          port: 3000,
-        },
-      }),
-      cpu: apprunner.Cpu.TWO_VCPU,
-      memory: apprunner.Memory.FOUR_GB,
-    });
-  }
-}
-</code></pre>
-Note:
-cpuやmemoryを指定することもできます
----
-```ts
+```ts [|9]
 import fastify from "fastify";
 
 const app = fastify({ logger: true });
@@ -162,7 +131,7 @@ docker containerの中身はportさえ合ってれば何でもいいです。
 
 サンプルでは fastify を使ってみました。
 ---
-```docker
+```docker [|10]
 FROM node:16
 
 WORKDIR /app
@@ -182,13 +151,17 @@ dockerfileはこんな感じ
 # terminal にて
 
 > npx cdk deploy
+```
+Note:
+デプロイしてみましょう
+---
+```bash
+# terminal にて
 
 > curl https://xxxxxxxxxx.ap-northeast-1.awsapprunner.com
 # OK
 ```
 Note:
-デプロイしてみましょう
-
 デプロイが完了したら疎通してみます。
 ---
 ### App Runner できた 🎉

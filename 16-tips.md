@@ -49,7 +49,7 @@ new ec2.Vpc(this, "Vpc", {
 });
 </code></pre>
 Notes:
-そんなことより、このec2.Vpc、注意しないとAZを2つまでしか使ってくれません。
+ところで、このec2.Vpc、注意しないとAZを2つまでしか使ってくれません。
 ---
 <pre data-id="code-animation"><code data-line-numbers="" class="hljs" data-trim>
 new ec2.Vpc(this, "Vpc", {
@@ -85,10 +85,22 @@ propsにてenvを指定していないstackのこと。
 デプロイについて柔軟であるが、デプロイ先間違える事故につがなることも。
 
 加えて、リージョンのAZをフル活用してくれない問題がある。
+
+余談だが、[App RunnerのドキュメントにもAZを3つ以上つくことが望ましい旨が記載されている](https://docs.aws.amazon.com/apprunner/latest/dg/network-vpc.html#:~:text=we%20recommend%20that%20you%20select%20subnets%20across%20at%20least%20three%20Availability%20Zones.)。
 ---
-公式 Doc: https://docs.aws.amazon.com/cdk/v2/guide/environments.html <!-- .element: style="overflow-wrap: break-word;" -->
+公式のEnvironment Agnosticに関する説明: https://docs.aws.amazon.com/cdk/v2/guide/environments.html <!-- .element: style="overflow-wrap: break-word;" -->
 ---
 ### もっとかっこよくdb migrationしたい
+---
+![](./aws-architecture.png) <!-- .element height="600" style="margin-top: 0" -->
+Notes:
+今回のサンプルでは、説明は端折りましたが、裏では上記のようなSQLを踏み台から実行していました。
+
+1. セッションマネージャを用いて踏み台にアクセスし
+1. mysql clientをyumでインストールし
+1. AWS Secrets ManagerからDB接続情報を取り出し
+1. DBにアクセスして
+1. SQLを実行していました。
 ---
 ```sql []
 CREATE TABLE items (
@@ -97,15 +109,13 @@ CREATE TABLE items (
 );
 ```
 Notes:
-今回のサンプルでは、説明は端折りましたが、裏では上記のようなSQLを踏み台から実行していました。
-
-1. セッションマネージャを用いて踏み台にアクセスし
-1. mysql clientをyumでインストールし
-1. AWS Secrets ManagerからDB接続情報を取り出し
-1. DBにアクセスして
-1. 上記SQLを実行していました。
+こんなSQL。あとINSERT文も。
 ---
 それLambdaでやればよいのでは？
+---
+![](./aws-architecture.png) <!-- .element height="600" style="margin-top: 0" -->
+---
+![](./aws-architecture-2.png) <!-- .element height="600" style="margin-top: 0" -->
 ---
 そのLambda，Custom Resourceにしてしまえばよいのでは？
 ---
@@ -161,6 +171,22 @@ export const env = envValueMap[envName];
 
 // 文字列結合した値とかも用意できる
 export const stackPrefix = `${envName}PlayAppRunner`;
+```
+---
+でも秘匿情報はParameter Storeとかに入れよう！
+---
+```ts []
+ssm.StringParameter.fromStringParameterAttributes(
+  this, 
+  'MyValue', 
+  { parameterName: '/My/Public/Parameter' },
+);
+
+ssm.StringParameter.fromSecureStringParameterAttributes(
+  this, 
+  'MySecureValue', 
+  { parameterName: '/My/Secret/Parameter' version: 5 },
+);
 ```
 ---
 以上、Tipsでした！

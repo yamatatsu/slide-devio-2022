@@ -33,8 +33,17 @@ https://github.com/yamatatsu/slide-devio-2022
 </dev>
 ---
 ![](./jaws-cdk.png) <!-- .element height="500" -->
+Notes:
+JAWS-UG CDK支部やってます！  
+https://twitter.com/jawsug_cdk  
+次回は9月の頭ころかな？
+---
+![](./twitter-community.png) <!-- .element height="500" -->
+Notes:
+CDKのTwitterコミュニティもあります！  
+https://twitter.com/i/communities/1539905872230420481 <!-- .element: style="overflow-wrap: break-word;" -->
 
-https://twitter.com/jawsug_cdk
+CDKに関する質問や共有などなんでも！
 ---
 ![](./cdk-contribution.png) <!-- .element height="500" -->
 
@@ -44,9 +53,26 @@ https://github.com/aws/aws-cdk/graphs/contributors
 
 https://yamatatsu.github.io/aws-cdk-contribution-chart/
 ---
+改めてタイトル
+---
+# AWS CDK で
+# AWS App Runner
+---
+- **AWS App Runnerとは？**
+  - フルマネージドコンテナサービス <!-- .element style="font-size: 32px; line-height: 60px" -->
+  - 簡単な設定でコンテナ化したWebサーバーをAWS環境にローンチできる <!-- .element style="font-size: 32px; line-height: 60px" -->
+- **AWS CDKとは？**
+  - Infrastructure as Code (IaC) <!-- .element style="font-size: 32px; line-height: 60px" -->
+  - 高級プログラミング言語を用いてクラウドインフラストラクチャを定義できる <!-- .element style="font-size: 32px; line-height: 60px" -->
+---
 ![](./using-cdk.png) <!-- .element style="width: 80vw" -->
 ---
 ### この登壇の狙い
 
 - CDK ビギナー向けの話にしよう
 - 擬似的に CDK を体験できるセッションにしよう
+Notes:
+ライブコーディングができたら一番かっこいいのですが、タイピング能力が赤ちゃんなのでスライドでなんとかします！
+---
+![](./aws-architecture.png) <!-- .element height="600" style="margin-top: 0" -->
+Notes: こんな構成で作成しようと思います。
