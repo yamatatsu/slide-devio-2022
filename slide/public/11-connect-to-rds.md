@@ -7,6 +7,8 @@
 ---
 ## RDS に繋いでみる
 ---
+![](./aws-architecture.png) <!-- .element height="600" style="margin-top: 0" -->
+---
 ![](./press-of-vpc-connector.png) <!-- .element height="500" -->
 Note: 今年の2月に、App RunnerはVPCと繋ぐことができるようになりました
 ---
@@ -15,7 +17,7 @@ Note: CDKでも5月に、PRがマージされてL2として使うことができ
 ---
 さっそくstackの中身を修正していきます！
 ---
-```ts [|3-5|13-25|44-47|70|27-42|48,65-67,55-58,71|74-78|]
+```ts [|3-5|13-25|44-47|70|27-42|48|65-67|55-58,71|74-78|]
 import { Construct } from "constructs";
 import * as cdk from "aws-cdk-lib";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
